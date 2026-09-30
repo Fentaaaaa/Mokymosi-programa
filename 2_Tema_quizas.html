@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2 Tema</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f6fb;color:#182230;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 40px}
+.card{background:white;border-radius:20px;padding:28px;box-shadow:0 10px 35px rgba(20,40,70,.09)}
+h1{margin:0 0 8px;font-size:30px} h2{font-size:24px;line-height:1.35;margin:22px 0}
+.muted{color:#667085}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.progress{height:8px;background:#e7ebf1;border-radius:99px;overflow:hidden;margin:18px 0 26px}
+.bar{height:100%;width:0;background:#2563eb;transition:.25s}
+.answers{display:grid;gap:12px}
+.answer{width:100%;padding:16px 18px;border:2px solid #d9dee7;border-radius:13px;background:#fff;text-align:left;font-size:16px;cursor:pointer;transition:.15s}
+.answer:hover{border-color:#8ea9d7;background:#f8fbff}
+.answer.correct{background:#dff6e7;border-color:#22a35a;color:#146c36}
+.answer.wrong{background:#ffe1e1;border-color:#e34848;color:#9e2020}
+.answer:disabled{cursor:default}
+.feedback{min-height:26px;margin-top:16px;font-weight:650}
+.next{display:none;margin-top:18px;width:100%;padding:14px;border:0;border-radius:12px;background:#182230;color:white;font-size:16px;font-weight:700;cursor:pointer}
+.next.show{display:block}
+.result{text-align:center}
+.score{font-size:48px;font-weight:800;margin:12px 0}
+button.restart{padding:14px 22px;border:0;border-radius:12px;background:#2563eb;color:white;font-weight:700;cursor:pointer;font-size:16px}
+.theme-btn{padding:9px 12px;border:1px solid #d7dde6;border-radius:10px;background:#fff;color:#182230;cursor:pointer;font-weight:650;font-size:14px}
+body.dark{background:#101418;color:#edf2f7}
+body.dark .card{background:#1b222b;box-shadow:0 10px 35px rgba(0,0,0,.35)}
+body.dark .muted{color:#aab5c3}
+body.dark .progress{background:#303946}
+body.dark .answer{background:#202933;border-color:#3b4654;color:#edf2f7}
+body.dark .answer:hover{border-color:#7895bd;background:#27313d}
+body.dark .answer.correct{background:#163d28;border-color:#36b66a;color:#8ee2ae}
+body.dark .answer.wrong{background:#4a2023;border-color:#ef6262;color:#ffb1b1}
+body.dark .next{background:#edf2f7;color:#182230}
+body.dark .theme-btn{background:#2a3440;border-color:#465362;color:#edf2f7}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<div id="quiz">
+<div class="top">
+<div><h1>2 Tema</h1><div class="muted">Organizacijų tipai bei joms taikomi saugumo reikalavimai</div></div>
+<div style="display:flex;align-items:center;gap:10px"><button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙 Dark mode</button><strong id="counter">1 / 10</strong></div>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<button class="next" id="next">Kitas klausimas →</button>
+</div>
+<div id="result" class="result" style="display:none">
+<h1>2 Tema</h1><div class="muted">Testas baigtas</div>
+<div class="score" id="score"></div>
+<p id="details"></p>
+<button class="restart" onclick="startQuiz()">Pradėti iš naujo</button>
+</div>
+</div>
+</div>
+<script>
+const bank=[{"q": "Koks yra pagrindinis NIS2 direktyvos tikslas?", "a": ["Reglamentuoti tik fizinę pastatų apsaugą", "Nustatyti vienodus atlyginimus IT darbuotojams", "Gerinti tinklų ir informacinių sistemų kibernetinį saugumą ES", "Panaikinti visus nacionalinius kibernetinio saugumo reikalavimus"], "c": 2}, {"q": "Kurią ankstesnę direktyvą pakeičia NIS2?", "a": ["PCI DSS", "GDPR", "ISO 27001", "NIS1"], "c": 3}, {"q": "Į kokias dvi pagrindines grupes NIS2 skirsto organizacijas?", "a": ["Viešąsias ir privačias", "Mažas ir dideles", "Esmines ir svarbias", "Technines ir fizines"], "c": 2}, {"q": "Nuo ko priklauso organizacijos priskyrimas esminėms ar svarbioms?", "a": ["Nuo biuro vietos", "Nuo naudojamos operacinės sistemos", "Nuo jos teikiamų paslaugų kritiškumo", "Nuo darbuotojų amžiaus"], "c": 2}, {"q": "Kuris sektorius priskiriamas kritiniams sektoriams?", "a": ["Leidyba", "Viešbučių administravimas", "Reklama", "Energetika"], "c": 3}, {"q": "Kuris iš šių sektorių nurodytas tarp esminių organizacijų sektorių?", "a": ["Nekilnojamojo turto nuoma", "Pramogų organizavimas", "Mažmeninė prekyba drabužiais", "Transportas"], "c": 3}, {"q": "Kuris sektorius nurodytas tarp esminių organizacijų?", "a": ["Sveikatos apsauga", "Mados pramonė", "Restoranų veikla", "Turizmas"], "c": 0}, {"q": "Kuris sektorius nurodytas tarp esminių organizacijų?", "a": ["Sporto klubai", "Reklamos agentūros", "Žiniasklaidos kūrėjai", "Bankininkystė"], "c": 3}, {"q": "Kuris sektorius nurodytas tarp esminių organizacijų?", "a": ["Maitinimo paslaugos", "Automobilių prekyba", "Skaitmeninė infrastruktūra", "Kultūros renginiai"], "c": 2}, {"q": "Koks sutrikimo poveikis būdingas esminėms organizacijoms?", "a": ["Jis neturi jokio poveikio visuomenei", "Jis susijęs tik su dokumentų praradimu", "Jis gali reikšmingai paveikti visuomenę ar ekonomiką", "Jis visada paveikia tik vieną darbuotoją"], "c": 2}, {"q": "Kuris sektorius nurodytas tarp svarbių organizacijų?", "a": ["Elektros gamyba", "Maisto tiekimas", "Kosmoso tyrimai", "Bankininkystė"], "c": 1}, {"q": "Kuris sektorius nurodytas tarp svarbių organizacijų?", "a": ["Sveikatos apsauga", "Skaitmeninė infrastruktūra", "Atliekų tvarkymas", "Energetika"], "c": 2}, {"q": "Kuris sektorius nurodytas tarp svarbių organizacijų?", "a": ["Transportas", "Pašto paslaugos", "Energetika", "Bankininkystė"], "c": 1}, {"q": "Kuo svarbios organizacijos skiriasi nuo esminių pagal paslaugų kritiškumą?", "a": ["Jos veikia tik ne skaitmeninėje aplinkoje", "Jos neprivalo taikyti kibernetinio saugumo priemonių", "Jų teikiamos paslaugos yra svarbios, tačiau mažiau kritinės", "Jos apskritai neteikia svarbių paslaugų"], "c": 2}, {"q": "Ką turi įgyvendinti tiek esminės, tiek svarbios organizacijos?", "a": ["Tik antivirusinę programą", "Rizika pagrįstas kibernetinio saugumo praktikas", "Tik darbuotojų atrankos procedūras", "Tik fizinę apsaugą"], "c": 1}, {"q": "Ką organizacijos turi daryti su kibernetinio saugumo incidentais?", "a": ["Juos stebėti ir aptikti", "Pranešti tik darbuotojams", "Fiksuoti tik fizinius incidentus", "Juos ignoruoti iki metų pabaigos"], "c": 0}, {"q": "Kokia priemonė minima jautriems duomenims apsaugoti?", "a": ["Šifravimas ir prieigos kontrolė", "Tik dokumentų spausdinimas", "Tik slaptažodžio keitimas kartą per metus", "Tik fizinių durų užrakinimas"], "c": 0}, {"q": "Kokius planus turi turėti organizacijos verslo tęstinumui?", "a": ["Verslo tęstinumo ir nelaimių atkūrimo planus", "Tik finansinius planus", "Tik rinkodaros planus", "Tik darbuotojų atostogų planus"], "c": 0}, {"q": "Kaip dažnai organizacijos turi vertinti galimas kibernetines grėsmes?", "a": ["Reguliariai", "Tik po incidento", "Tik kartą per dešimt metų", "Tik prieš įmonės steigimą"], "c": 0}, {"q": "Koks požiūris turi būti taikomas kibernetinio saugumo politikoms?", "a": ["Tik finansinis požiūris", "Tik darbuotojų skaičiumi pagrįstas požiūris", "Atsitiktinis požiūris", "Rizika pagrįstas požiūris"], "c": 3}, {"q": "Į ką organizacijos turėtų atsižvelgti prioritetizuodamos kibernetinio saugumo pastangas?", "a": ["Tik naudojamų kompiuterių skaičių", "Tik įmonės amžių", "Rizikų rimtumą ir tikimybę", "Tik darbuotojų skaičių"], "c": 2}, {"q": "Ką reiškia dinamiškas rizikos vertinimas?", "a": ["Jis atliekamas tik vieną kartą", "Jis atliekamas tik po audito", "Jis vertina tik fizines grėsmes", "Jis nuolat atsižvelgia į besikeičiančią grėsmių aplinką"], "c": 3}, {"q": "Kodėl svarbus tiekimo grandinės saugumas?", "a": ["Nes tiekimo grandinė susijusi tik su logistika", "Nes tiekėjai nustato darbuotojų atlyginimus", "Nes tiekėjai pakeičia organizacijos vadovybę", "Tiekimo grandinės pažeidžiamumas gali kelti grėsmę visai sistemai"], "c": 3}, {"q": "Per kiek laiko, pagal pateiktą medžiagą, apie incidentą turi būti pranešta nacionalinėms institucijoms?", "a": ["Per 72 valandas", "Per 12 valandų", "Per 30 dienų", "Per 24 valandas"], "c": 3}, {"q": "Per kiek laiko turi būti pateikta išsami incidento ataskaita?", "a": ["Per 24 valandas", "Per 72 valandas", "Per 30 dienų", "Per 7 dienas"], "c": 1}, {"q": "Kuris kriterijus gali būti naudojamas vertinant incidento pranešimo reikšmingumą?", "a": ["Įmonės reklamos biudžetas", "Paveiktų naudotojų skaičius", "Darbuotojų atostogų skaičius", "Biuro patalpų dydis"], "c": 1}, {"q": "Kuris dar kriterijus minimas vertinant incidento reikšmingumą?", "a": ["Incidento trukmė", "Darbuotojų darbo stažas", "Kompiuterių gamintojas", "Įmonės pelno marža"], "c": 0}, {"q": "Kuris dar kriterijus naudojamas incidento pranešimo kontekste?", "a": ["Biuro aukštų skaičius", "Geografinis paplitimas", "Įmonės logotipo spalva", "Darbuotojų išsilavinimas"], "c": 1}, {"q": "Kokia priežiūra taikoma esminėms organizacijoms?", "a": ["Proaktyvi priežiūra", "Tik reaktyvi priežiūra", "Jokia priežiūra", "Tik savanoriška priežiūra"], "c": 0}, {"q": "Kas gali būti proaktyvios priežiūros dalis?", "a": ["Tik rinkodaros tyrimai", "Tik finansinės ataskaitos", "Auditai ir vertinimai", "Tik darbuotojų atranka"], "c": 2}, {"q": "Kokia priežiūra paprastai taikoma svarbioms organizacijoms?", "a": ["Tik kasdienis auditas", "Tik tarptautinė priežiūra", "Jokia priežiūra", "Reaktyvi priežiūra"], "c": 3}, {"q": "Kada svarbios organizacijos gali būti tiriamos pagal pateiktą medžiagą?", "a": ["Tik kas mėnesį nepriklausomai nuo situacijos", "Tik įmonės steigimo metu", "Tik prieš darbuotojų priėmimą", "Po reikšmingų incidentų arba skundų"], "c": 3}, {"q": "Kokios organizacijos gali susidurti su griežtesniu įgyvendinimu ir didesnėmis sankcijomis?", "a": ["Tik ne pelno organizacijos", "Tik svarbios organizacijos", "Tik mažos įmonės", "Esminės organizacijos"], "c": 3}, {"q": "Kuris procesas yra incidentų valdymo dalis?", "a": ["Aptikimas, atsakas ir atstatymas", "Tik duomenų archyvavimas", "Tik incidento ignoravimas", "Tik darbuotojų vertinimas"], "c": 0}, {"q": "Kokia autentifikacija minima kaip svarbi prieigos kontrolės priemonė?", "a": ["Tik el. pašto adresas", "Tik vartotojo vardas", "Tik fizinis raktas", "Daugiafaktorinė autentifikacija (MFA)"], "c": 3}, {"q": "Koks yra pleistrų valdymo tikslas?", "a": ["Išjungti saugumo funkcijas", "Reguliariai atnaujinti sistemas ir pašalinti pažeidžiamumus", "Pašalinti visus vartotojus iš sistemos", "Sumažinti atsarginių kopijų skaičių"], "c": 1}, {"q": "Ką turi apsaugoti šifravimas pagal pateiktą medžiagą?", "a": ["Tik viešai skelbiamą informaciją", "Jautrius duomenis tiek sistemoje, tiek perduodamus", "Tik darbuotojų darbo grafikus", "Tik fizinius serverius"], "c": 1}, {"q": "Ką organizacijos turi paskirti kibernetinio saugumo srityje?", "a": ["Tik rinkodaros vadovą", "Kibernetinio saugumo pareigūną arba aukšto rango darbuotoją, atsakingą už saugumą", "Tik finansų auditorių", "Tik išorinį pardavėją"], "c": 1}, {"q": "Kur turi būti aiškiai apibrėžta atsakomybė už kibernetinį saugumą?", "a": ["Valdymo lygmenyje", "Tik techninės pagalbos skyriuje", "Tik darbuotojų mokymuose", "Tik pas tiekėją"], "c": 0}, {"q": "Kokią informaciją organizacijos turi dokumentuoti?", "a": ["Saugumo politikas, rizikos vertinimus ir incidentų valdymo veiksmus", "Tik pardavimų rezultatus", "Tik klientų apklausas", "Tik darbuotojų atostogas"], "c": 0}, {"q": "Ką organizacijos turi daryti vertindamos trečiųjų šalių tiekėjus?", "a": ["Visiškai jų nevertinti", "Vertinti tik pagal kainą", "Vertinti tik pagal darbuotojų skaičių", "Vertinti juos pagal saugumo standartus"], "c": 3}, {"q": "Kas turėtų būti įtraukta į sutartis su tiekėjais?", "a": ["Tik darbuotojų atostogų taisyklės", "Kibernetinio saugumo nuostatos", "Tik biuro naudojimo taisyklės", "Tik reklamos reikalavimai"], "c": 1}, {"q": "Kokios organizacijos turi taikyti griežtesnes tiekimo grandinės saugumo priemones?", "a": ["Tik nevyriausybinės organizacijos", "Esminės organizacijos", "Tik svarbios organizacijos", "Tik mažos įmonės"], "c": 1}, {"q": "Ką turi apimti darbuotojų kibernetinio saugumo sąmoningumo mokymai?", "a": ["Tik darbo užmokesčio apskaitą", "Tik pardavimo procesus", "Tik įmonės istoriją", "Naujausias kibernetines grėsmes ir incidentų valdymą"], "c": 3}, {"q": "Kokios grėsmės darbuotojams pateikiamos kaip mokymų pavyzdžiai?", "a": ["Tik gamtos reiškiniai", "Tik elektros tiekimo sutrikimai", "Tik aparatinės įrangos gedimai", "Phishing, socialinė inžinerija ir ransomware"], "c": 3}, {"q": "Koks yra darbuotojų saugumo sąmoningumo mokymų tikslas?", "a": ["Panaikinti incidentų valdymo procedūras", "Pakeisti visus tiekėjus", "Sukurti saugumo sąmoningumo kultūrą organizacijoje", "Sumažinti darbuotojų skaičių"], "c": 2}, {"q": "Su kokiu duomenų apsaugos reglamentu turi būti užtikrinama atitiktis?", "a": ["ISO 9001", "SLA", "PCI DSS", "BDAR"], "c": 3}, {"q": "Kokios priemonės minimos jautriems duomenims apsaugoti?", "a": ["Tik auditai", "Tik darbuotojų mokymai", "Tik tiekėjų vertinimas", "Šifravimas ir prieigos kontrolė"], "c": 3}, {"q": "Kurioms esminėms organizacijoms ypač svarbi griežtesnė jautrių duomenų kontrolė?", "a": ["Tik sporto klubams", "Tik mažmeninės prekybos įmonėms", "Sveikatos apsaugos ir finansų sektoriuose veikiančioms organizacijoms", "Tik reklamos agentūroms"], "c": 2}, {"q": "Kokia bauda nurodyta esminėms organizacijoms už NIS2 nesilaikymą?", "a": ["Iki 2 % pasaulinės metinės apyvartos", "Iki 2 % mėnesio pajamų", "Iki 1000 eurų", "Iki 10 % darbuotojų atlyginimų"], "c": 0}, {"q": "Kokios papildomos sankcijos gali būti taikomos esminėms organizacijoms?", "a": ["Tik viešas įspėjimas be kitų priemonių", "Tik darbuotojų mokymai", "Tik rekomendaciniai laiškai", "Operaciniai apribojimai ir privalomos saugumo priemonės"], "c": 3}, {"q": "Kaip apibūdinami reikalavimai esminėms organizacijoms?", "a": ["Griežtesni saugumo reikalavimai ir proaktyvi priežiūra", "Nėra saugumo reikalavimų", "Tik finansiniai reikalavimai", "Tik savanoriški reikalavimai"], "c": 0}, {"q": "Ką privalo užtikrinti abi organizacijų rūšys?", "a": ["Atitiktį baziniams saugumo standartams", "Tik darbuotojų skaičiaus augimą", "Tik fizinę apsaugą", "Tik finansinį stabilumą"], "c": 0}];
+let quiz=[],index=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){quiz=shuffle([...bank]).slice(0,10);index=0;score=0;$("quiz").style.display="block";$("result").style.display="none";render()}
+function render(){
+ const item=quiz[index];answered=false;
+ $("counter").textContent=`${index+1} / 10`;
+ $("bar").style.width=`${(index/10)*100}%`;
+ $("question").textContent=item.q;$("feedback").textContent="";$("next").classList.remove("show");$("answers").innerHTML="";
+ item.a.forEach((text,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=`${String.fromCharCode(65+i)}. ${text}`;b.onclick=()=>choose(i,b);$("answers").appendChild(b)});
+}
+function choose(i,button){
+ if(answered)return;answered=true;const item=quiz[index],buttons=[...document.querySelectorAll(".answer")];buttons.forEach(b=>b.disabled=true);
+ if(i===item.c){score++;button.classList.add("correct");$("feedback").textContent="✓ Teisingas atsakymas";$("feedback").style.color="#146c36"}
+ else{button.classList.add("wrong");buttons[item.c].classList.add("correct");$("feedback").textContent="✗ Neteisingas atsakymas";$("feedback").style.color="#9e2020"}
+ $("next").classList.add("show");
+}
+$("next").onclick=()=>{index++;if(index<10)render();else finish()};
+function finish(){$("quiz").style.display="none";$("result").style.display="block";$("score").textContent=`${score} / 10`;$("details").textContent=`Teisingi atsakymai: ${score} · Neteisingi: ${10-score} · Rezultatas: ${score*10}%`}
+function toggleDark(){document.body.classList.toggle("dark");const dark=document.body.classList.contains("dark");$("themeBtn").textContent=dark?"☀️ Light mode":"🌙 Dark mode";localStorage.setItem("quizDarkMode",dark?"1":"0")}
+if(localStorage.getItem("quizDarkMode")==="1"){document.body.classList.add("dark")}
+startQuiz();
+</script>
+</body>
+</html>
