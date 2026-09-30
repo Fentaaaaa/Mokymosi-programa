@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 Tema – Verslo tęstinumo plano paruošimas</title>
+<style>
+:root {
+  --bg:#f5f7fb; --card:#fff; --text:#172033; --muted:#667085;
+  --border:#d9dee8; --accent:#4f46e5; --green:#16a34a; --red:#dc2626;
+}
+body.dark {
+  --bg:#111827; --card:#1f2937; --text:#f3f4f6; --muted:#aab3c2;
+  --border:#374151; --accent:#818cf8;
+}
+* {box-sizing:border-box}
+body {margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);transition:.2s}
+.container {max-width:760px;margin:0 auto;padding:28px 18px 50px}
+.top {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
+h1 {font-size:25px;margin:0 0 5px}
+.subtitle {color:var(--muted);font-size:14px}
+button {font:inherit}
+#themeBtn {border:1px solid var(--border);background:var(--card);color:var(--text);padding:9px 13px;border-radius:10px;cursor:pointer}
+.card {background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 8px 25px rgba(0,0,0,.05)}
+.progress {color:var(--muted);font-size:14px;margin-bottom:12px}
+.question {font-size:21px;line-height:1.4;font-weight:700;margin-bottom:20px}
+.answers {display:grid;gap:11px}
+.answer {width:100%;text-align:left;padding:14px 15px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:12px;cursor:pointer;transition:.15s}
+.answer:hover:not(:disabled) {border-color:var(--accent);transform:translateY(-1px)}
+.answer.correct {background:#dcfce7;color:#166534;border-color:#22c55e}
+.answer.wrong {background:#fee2e2;color:#991b1b;border-color:#ef4444}
+body.dark .answer.correct {background:#14532d;color:#dcfce7}
+body.dark .answer.wrong {background:#7f1d1d;color:#fee2e2}
+.next {margin-top:18px;width:100%;padding:13px;border:0;border-radius:12px;background:var(--accent);color:white;cursor:pointer;font-weight:700;font-size:16px}
+.next:disabled {opacity:.45;cursor:not-allowed}
+.result {text-align:center}
+.score {font-size:46px;font-weight:800;margin:10px 0}
+.small {color:var(--muted)}
+.hidden {display:none}
+.restart {margin-top:18px;padding:12px 18px;border:0;border-radius:10px;background:var(--accent);color:white;cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top">
+    <div>
+      <h1>7 Tema – Verslo tęstinumo plano paruošimas</h1>
+      <div class="subtitle">10 random questions per attempt</div>
+    </div>
+    <button id="themeBtn">🌙 Dark mode</button>
+  </div>
+
+  <div id="quiz" class="card">
+    <div class="progress" id="progress"></div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <button class="next" id="next" disabled>Kitas klausimas →</button>
+  </div>
+
+  <div id="result" class="card result hidden">
+    <h2>Quiz baigtas!</h2>
+    <div class="score" id="score"></div>
+    <div class="small" id="percent"></div>
+    <button class="restart" onclick="startQuiz()">Bandyti dar kartą</button>
+  </div>
+</div>
+
+<script>
+const bank = [{'q': 'Koks yra pagrindinis verslo tęstinumo plano (BCP) tikslas?', 'a': ['Pakeisti visus tiekėjus', 'Sukurti naują rinkodaros strategiją', 'Užtikrinti paslaugų atsparumą kibernetinių incidentų metu', 'Padidinti darbuotojų skaičių'], 'c': 2}, {'q': 'Ko reikalauja NIS2 direktyva verslo tęstinumo srityje?', 'a': ['Naudoti tik vieną IT sistemą', 'Netaikyti rizikos vertinimo', 'Atsisakyti atsarginių kopijų', 'Įgyvendinti veiksmingas tęstinumo ir nelaimių atkūrimo priemones'], 'c': 3}, {'q': 'Kas turi būti identifikuojama siekiant užtikrinti operacijų tęstinumą?', 'a': ['Kritinės paslaugos ir sistemos', 'Tik darbuotojų atostogos', 'Tik rinkodaros kanalai', 'Tik biuro patalpos'], 'c': 0}, {'q': 'Koks procesas padeda įvertinti galimų sutrikimų poveikį kritinėms paslaugoms?', 'a': ['SLA peržiūra', 'Viešųjų ryšių kampanija', 'Verslo poveikio analizė (BIA)', 'Tiekėjo atranka'], 'c': 2}, {'q': 'Kodėl atliekamas rizikos vertinimas rengiant BCP?', 'a': ['Kad būtų sumažintas darbuotojų skaičius', 'Kad būtų įvertintos galimos grėsmės', 'Kad būtų pakeistas organizacijos pavadinimas', 'Kad būtų parinktas logotipas'], 'c': 1}, {'q': 'Kuri grėsmė minima kaip galima rizika verslo tęstinumui?', 'a': ['Reklamos kampanija', 'Darbuotojo gimtadienis', 'Kibernetinė ataka', 'Naujas prekės ženklas'], 'c': 2}, {'q': 'Kuri grėsmė taip pat minima BCP kontekste?', 'a': ['Naujas šūkis', 'Techninės įrangos gedimas', 'Socialinių tinklų dizainas', 'Darbo vietos dekoravimas'], 'c': 1}, {'q': 'Kas yra incidentų valdymo struktūros paskirtis?', 'a': ['Nustatyti darbuotojų atlyginimus', 'Valdyti rinkodaros biudžetą', 'Sukurti struktūrizuotą požiūrį į incidentų valdymą', 'Planuoti įmonės renginius'], 'c': 2}, {'q': 'Kas turėtų būti paskirta kibernetinių incidentų valdymui ir reagavimo koordinavimui?', 'a': ['Krizių valdymo komanda', 'Personalo atrankos komisija', 'Pardavimų komanda', 'Reklamos agentūra'], 'c': 0}, {'q': 'Kokie dalykai turi būti aiškiai apibrėžti krizių valdymo komandai?', 'a': ['Atostogų grafikai ir premijos', 'Rinkodaros šūkiai', 'Produktų spalvos', 'Atsakomybės ir vaidmenys'], 'c': 3}, {'q': 'Ką turi prižiūrėti krizių valdymo komanda incidento metu?', 'a': ['Tik reklamos kampanijas', 'Tik darbuotojų atranką', 'Tik pardavimus', 'Reagavimo, atkūrimo ir komunikacijos procesus'], 'c': 3}, {'q': 'Ką apima nelaimių atkūrimo planas (DRP)?', 'a': ['Tik tiekėjų paiešką', 'Tik komunikacijos kampanijas', 'Tik darbuotojų mokymus', 'Atsargines kopijas ir atkūrimo procedūras'], 'c': 3}, {'q': 'Kodėl svarbios reguliarios atsarginės kopijos?', 'a': ['Kad būtų padidintas reklamos biudžetas', 'Kad nereikėtų rizikos vertinimo', 'Kad būtų pakeisti SLA', 'Kad sistemos ir duomenys galėtų būti atkuriami po incidento'], 'c': 3}, {'q': 'Ką reiškia RTO?', 'a': ['Atkūrimo laiko tikslą', 'Rizikos vertinimo objektą', 'Reguliuotojo techninę operaciją', 'Atkūrimo taško tikslą'], 'c': 0}, {'q': 'Ką reiškia RPO?', 'a': ['Rizikos planavimo objektą', 'Reagavimo procedūros organizavimą', 'Atkūrimo laiko tikslą', 'Atkūrimo taško tikslą'], 'c': 3}, {'q': 'Ką RTO padeda nustatyti?', 'a': ['Maksimaliai priimtiną prastovos laiką', 'SLA trukmę', 'Maksimalų darbuotojų skaičių', 'Tiekėjo kainą'], 'c': 0}, {'q': 'Ką RPO padeda nustatyti?', 'a': ['Tiekėjo pelną', 'Priimtiną duomenų praradimo ribą', 'Komunikacijos biudžetą', 'Priimtiną darbuotojų skaičių'], 'c': 1}, {'q': 'Kodėl turi būti testuojamos atsarginės kopijos ir avarinės sistemos?', 'a': ['Kad būtų užtikrintas duomenų vientisumas atkūrimo metu', 'Kad būtų pakeista organizacijos struktūra', 'Kad būtų sumažintas darbuotojų skaičius', 'Kad būtų sukurtos reklamos'], 'c': 0}, {'q': 'Koks svarbus reikalavimas taikomas atkurtų duomenų kokybei?', 'a': ['Užtikrinti duomenų vientisumą', 'Užtikrinti darbuotojų kaitą', 'Užtikrinti rinkodaros efektyvumą', 'Užtikrinti pardavimų augimą'], 'c': 0}, {'q': 'Kokios komunikacijos rūšys turi būti numatytos krizės metu?', 'a': ['Vidinė ir išorinė komunikacija', 'Tik vidinė komunikacija', 'Tik neformali komunikacija', 'Tik reklaminė komunikacija'], 'c': 0}, {'q': 'Kam skirta vidinė komunikacija incidento metu?', 'a': ['Tik žiniasklaidai', 'Tik tiekėjams', 'Organizacijos personalui informuoti', 'Tik reguliuotojams'], 'c': 2}, {'q': 'Kam skirta išorinė komunikacija incidento metu?', 'a': ['Tik vadovams', 'Klientams ir reguliuotojams informuoti', 'Tik darbuotojams', 'Tik IT administratoriui'], 'c': 1}, {'q': 'Kodėl BCP turi numatyti viešuosius ryšius?', 'a': ['Kad būtų atrinkti darbuotojai', 'Kad būtų pakeistos atsarginės kopijos', 'Kad būtų suplanuotos reklamos', 'Kad būtų pasiruošta komunikacijai su žiniasklaida ir visuomene'], 'c': 3}, {'q': 'Ką komunikacijos protokoluose reikia aiškiai nustatyti?', 'a': ['Kas perka įrangą', 'Kas ir kada turi perduoti informaciją', 'Kas gauna atlyginimą', 'Kas kuria reklamą'], 'c': 1}, {'q': 'Kuo svarbi komunikacija krizės metu?', 'a': ['Ji panaikina poreikį BIA', 'Ji pakeičia atsargines kopijas', 'Ji padeda informuoti personalą, klientus ir išorės suinteresuotuosius asmenis', 'Ji pašalina visas kibernetines grėsmes'], 'c': 2}, {'q': 'Kas svarbu tiekimo grandinės tęstinumui?', 'a': ['Tik vidinės komunikacijos valdymas', 'Trečiųjų šalių priklausomybių valdymas', 'Tik darbuotojų mokymas', 'Tik rinkodaros planavimas'], 'c': 1}, {'q': 'Ko turėtų turėti svarbūs tiekėjai?', 'a': ['Naujų produktų katalogus', 'Verslo tęstinumo planus', 'Darbuotojų atostogų planus', 'Reklamos planus'], 'c': 1}, {'q': 'Ką rekomenduojama įtraukti į SLA sutartis su tiekėjais?', 'a': ['Rinkodaros šūkius', 'Tęstinumo ir paslaugų atkūrimo nuostatas', 'Biuro dizaino reikalavimus', 'Darbuotojų atlyginimų nuostatas'], 'c': 1}, {'q': 'Kodėl svarbios SLA sutartys verslo tęstinumo kontekste?', 'a': ['Jos gali nustatyti tiekėjo paslaugų atkūrimo įsipareigojimus', 'Jos pakeičia BIA', 'Jos panaikina rizikas', 'Jos pakeičia DRP'], 'c': 0}, {'q': 'Ką reikia padaryti su BCP dokumentacija?', 'a': ['Dokumentuoti tik incidentus', 'Niekada jos neatnaujinti', 'Laikyti tik žodines instrukcijas', 'Pilnai dokumentuoti BCP ir reguliariai jį atnaujinti'], 'c': 3}, {'q': 'Kodėl BCP dokumentacija turi būti reguliariai atnaujinama?', 'a': ['Kad būtų pakeistas įmonės logotipas', 'Kad ji išliktų aktuali ir atitiktų NIS2 reikalavimus', 'Kad sumažėtų SLA skaičius', 'Kad nereikėtų testuoti sistemų'], 'c': 1}, {'q': 'Koks yra vienas pirmųjų BCP rengimo žingsnių?', 'a': ['Rinkodaros kampanija', 'Naujo tiekėjo paieška', 'Žiniasklaidos konferencija', 'Kritinių paslaugų ir sistemų identifikavimas'], 'c': 3}, {'q': 'Koks yra BIA vaidmuo BCP procese?', 'a': ['Parinkti tiekėjo pavadinimą', 'Nustatyti darbuotojų atlyginimus', 'Įvertinti sutrikimų pasekmes kritinių paslaugų teikimui', 'Sukurti komunikacijos logotipą'], 'c': 2}, {'q': 'Kuris derinys geriausiai apibūdina pradinį rizikos ir tęstinumo vertinimą?', 'a': ['Reklama, pardavimai ir rinkodara', 'Kritinių paslaugų identifikavimas, rizikos vertinimas ir BIA', 'SLA, atlyginimai ir biuro planas', 'Darbuotojų atranka, mokymai ir atostogos'], 'c': 1}, {'q': 'Kas padeda organizacijai greitai ir veiksmingai spręsti sutrikimą?', 'a': ['Tik atsarginių kopijų nebuvimas', 'Tik tiekėjo sutartis', 'Stiprus incidentų valdymo planas', 'Tik viešųjų ryšių strategija'], 'c': 2}, {'q': 'Koks vaidmuo tenka krizių valdymo komandai?', 'a': ['Tvarkyti tik personalo atostogas', 'Valdyti tik pardavimus', 'Vadovauti incidentų valdymui ir atkūrimo procesui', 'Rengti tik reklamas'], 'c': 2}, {'q': 'Kuris elementas tiesiogiai susijęs su DRP?', 'a': ['Darbuotojų atranka', 'Viešųjų ryšių kampanijos', 'Rinkodaros biudžetas', 'Atkūrimo procedūros'], 'c': 3}, {'q': 'Koks ryšys tarp RTO ir RPO?', 'a': ['RTO susijęs su atkūrimo laiku, o RPO – su priimtinu duomenų praradimu', 'Abu reiškia atsarginių kopijų tipą', 'RTO skirtas komunikacijai, RPO – tiekėjams', 'Abu apibrėžia darbuotojų skaičių'], 'c': 0}, {'q': 'Ką turi užtikrinti atkūrimo procesas?', 'a': ['Atkurtų duomenų vientisumą', 'Darbuotojų kaitą', 'Produktų pardavimus', 'Reklamos kampanijos tęstinumą'], 'c': 0}, {'q': 'Kokios šalys minimos kaip išorinės komunikacijos gavėjai?', 'a': ['Klientai ir reguliuotojai', 'Tik darbuotojai', 'Tik akcininkai', 'Tik IT administratoriai'], 'c': 0}, {'q': 'Ką turi apimti viešųjų ryšių strategija didelio masto sutrikimo atveju?', 'a': ['Atsarginių kopijų kūrimą', 'SLA kainodarą', 'RTO skaičiavimą', 'Komunikaciją su žiniasklaida ir visuomene'], 'c': 3}, {'q': 'Kodėl svarbu valdyti trečiųjų šalių priklausomybes?', 'a': ['Jos gali būti svarbios tiekimo grandinės tęstinumui', 'Jos panaikina DRP poreikį', 'Jos pašalina kibernetines grėsmes', 'Jos pakeičia BIA'], 'c': 0}, {'q': 'Ką BCP turi įtraukti, kad atitiktų NIS2 ataskaitų reikalavimus?', 'a': ['Ataskaitų teikimo procesus', 'Tik darbuotojų grafiką', 'Tik reklamos planus', 'Tik tiekėjų kontaktus'], 'c': 0}, {'q': 'Kuris dokumentas orientuotas į sistemų ir duomenų atkūrimą po incidento?', 'a': ['Rinkodaros planas', 'Nelaimių atkūrimo planas (DRP)', 'SLA', 'Viešųjų ryšių planas'], 'c': 1}, {'q': 'Kuris dokumentas orientuotas į bendrą organizacijos veiklos tęstinumą?', 'a': ['Tik SLA', 'Tik atsarginių kopijų žurnalas', 'Verslo tęstinumo planas (BCP)', 'Tik incidento ataskaita'], 'c': 2}, {'q': 'Kokia BCP ir DRP sąsaja?', 'a': ['BCP naudojamas tik žiniasklaidai', 'DRP padeda atkurti sistemas ir duomenis kaip tęstinumo užtikrinimo dalis', 'DRP pakeičia visą BCP', 'BCP ir DRP neturi sąsajos'], 'c': 1}, {'q': 'Ką reikia prioritetizuoti rengiant BCP?', 'a': ['Sistemas ir procesus, būtinus operacijų tęstinumui', 'Visas sistemas vienodai, nevertinant svarbos', 'Tik neesmines paslaugas', 'Tik rinkodaros sistemas'], 'c': 0}, {'q': 'Ką rizikos vertinimas turi padėti nustatyti?', 'a': ['Galimas grėsmes organizacijos veiklai', 'Produktų kainas', 'Komunikacijos kanalų dizainą', 'Darbuotojų atlyginimus'], 'c': 0}, {'q': 'Koks BCP principas susijęs su tiekėjais?', 'a': ['Tiekėjai neturi būti vertinami', 'SLA nereikalingos', 'Tiekėjai turi pakeisti BCP', 'Svarbūs tiekėjai turi būti pasirengę užtikrinti tęstinumą'], 'c': 3}, {'q': 'Ką reikia užtikrinti po BCP parengimo?', 'a': ['Kad jis būtų naudojamas tik po incidento', 'Kad planas būtų dokumentuotas ir reguliariai atnaujinamas', 'Kad jis būtų laikomas tik vieno darbuotojo kompiuteryje', 'Kad jis nebūtų testuojamas'], 'c': 1}, {'q': 'Kuris procesas padeda suprasti, kokios būtų sutrikimo pasekmės?', 'a': ['Viešieji ryšiai', 'BIA', 'RPO', 'SLA'], 'c': 1}, {'q': 'Kuris procesas padeda nustatyti galimas grėsmes?', 'a': ['Rizikos vertinimas', 'Komunikacijos protokolas', 'Ataskaitos formatas', 'SLA'], 'c': 0}, {'q': 'Koks yra BCP tikslas kibernetinio incidento metu?', 'a': ['Sustabdyti komunikaciją', 'Pašalinti visus tiekėjus', 'Nutraukti visas paslaugas', 'Užtikrinti paslaugų ir kritinių funkcijų tęstinumą'], 'c': 3}, {'q': 'Ką turi užtikrinti komunikacijos protokolai?', 'a': ['Kad informacija nebūtų perduodama', 'Tik atsarginių kopijų kūrimą', 'Aiškų informacijos perdavimą tinkamiems asmenims tinkamu metu', 'Tik vidinę reklamą'], 'c': 2}, {'q': 'Ką apima tiekimo grandinės tęstinumas?', 'a': ['Tik darbuotojų mokymus', 'Tiekėjų priklausomybių, SLA ir dokumentacijos valdymą', 'Tik BIA', 'Tik viešuosius ryšius'], 'c': 1}];
+let quiz = [], current = 0, score = 0, answered = false;
+
+function pick10() {
+  quiz = [...bank].sort(() => Math.random() - 0.5).slice(0, 10);
+}
+function startQuiz() {
+  pick10(); current = 0; score = 0;
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  showQuestion();
+}
+function showQuestion() {
+  answered = false;
+  const item = quiz[current];
+  document.getElementById('progress').textContent = `Klausimas ${current+1} / ${quiz.length}`;
+  document.getElementById('question').textContent = item.q;
+  const box = document.getElementById('answers');
+  box.innerHTML = '';
+  item.a.forEach((ans, i) => {
+    const b = document.createElement('button');
+    b.className = 'answer';
+    b.textContent = ans;
+    b.onclick = () => choose(i);
+    box.appendChild(b);
+  });
+  document.getElementById('next').disabled = true;
+  document.getElementById('next').textContent = current === quiz.length-1 ? 'Baigti →' : 'Kitas klausimas →';
+}
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const item = quiz[current];
+  const buttons = [...document.querySelectorAll('.answer')];
+  buttons.forEach(b => b.disabled = true);
+  if (i === item.c) {
+    buttons[i].classList.add('correct');
+    score++;
+  } else {
+    buttons[i].classList.add('wrong');
+    buttons[item.c].classList.add('correct');
+  }
+  document.getElementById('next').disabled = false;
+}
+document.getElementById('next').onclick = () => {
+  if (!answered) return;
+  if (current < quiz.length-1) { current++; showQuestion(); }
+  else {
+    document.getElementById('quiz').classList.add('hidden');
+    document.getElementById('result').classList.remove('hidden');
+    document.getElementById('score').textContent = `${score} / 10`;
+    document.getElementById('percent').textContent = `${score * 10}%`;
+  }
+};
+document.getElementById('themeBtn').onclick = () => {
+  document.body.classList.toggle('dark');
+  const dark = document.body.classList.contains('dark');
+  document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
+  localStorage.setItem('darkMode', dark);
+};
+if (localStorage.getItem('darkMode') === 'true') {
+  document.body.classList.add('dark');
+  document.getElementById('themeBtn').textContent = '☀️ Light mode';
+}
+startQuiz();
+</script>
+</body>
+</html>
