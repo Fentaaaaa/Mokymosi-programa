@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17 tema — DLP sprendimai</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#dfe4ec;--accent:#2563eb;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);transition:.2s}
+body.dark{--bg:#101318;--card:#191d24;--text:#f3f4f6;--muted:#a7afbd;--border:#303642;--accent:#60a5fa;--green:#4ade80;--greenbg:#153b24;--red:#f87171;--redbg:#431b1b}
+.container{max-width:760px;margin:0 auto;padding:24px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+h1{font-size:28px;margin:0 0 5px}
+.subtitle{color:var(--muted);font-size:14px}
+button{font:inherit;border:0;cursor:pointer}
+.theme{background:var(--card);color:var(--text);border:1px solid var(--border);padding:9px 13px;border-radius:10px}
+.progress{color:var(--muted);font-size:14px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.question{font-size:21px;line-height:1.4;margin:0 0 20px;font-weight:700}
+.answers{display:grid;gap:11px}
+.answer{width:100%;text-align:left;padding:14px 15px;border:1px solid var(--border);border-radius:11px;background:transparent;color:var(--text);transition:.15s}
+.answer:hover:not(:disabled){border-color:var(--accent);background:rgba(37,99,235,.06)}
+.answer.correct{background:var(--greenbg);border-color:var(--green);color:var(--text)}
+.answer.wrong{background:var(--redbg);border-color:var(--red);color:var(--text)}
+.answer:disabled{cursor:default}
+.next{margin-top:18px;width:100%;padding:13px 16px;border-radius:11px;background:var(--accent);color:#fff;font-weight:700}
+.next:disabled{opacity:.45;cursor:not-allowed}
+.result{text-align:center}
+.score{font-size:44px;font-weight:800;margin:15px 0 5px}
+.percent{font-size:22px;color:var(--muted)}
+.retry{margin-top:22px;padding:12px 18px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700}
+@media(max-width:560px){h1{font-size:23px}.card{padding:18px}.question{font-size:19px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top">
+    <div>
+      <h1>17 tema — DLP sprendimai</h1>
+      <div class="subtitle">Duomenų praradimo prevencija ir NIS2</div>
+    </div>
+    <button class="theme" id="themeBtn" onclick="toggleTheme()">🌙 Dark mode</button>
+  </div>
+  <div id="quiz"></div>
+</div>
+<script>
+const bank = [{"q": "Kas yra DLP?", "a": ["Tinklo maršrutizavimo protokolas", "Darbuotojų mokymo platforma", "Atsarginių kopijų kūrimo sistema", "Priemonių ir procesų rinkinys, skirtas aptikti ir užkirsti kelią duomenų nutekėjimui, ištraukimui ar neteisėtai prieigai prie jautrių duomenų"], "c": 3}, {"q": "Koks yra vienas pagrindinių DLP tikslų?", "a": ["Užkirsti kelią neteisėtiems jautrių duomenų perdavimams", "Automatizuoti atlyginimų skaičiavimą", "Padidinti interneto greitį", "Pakeisti visas antivirusines programas"], "c": 0}, {"q": "Kokius tris duomenų būvius DLP sprendimai stebi?", "a": ["Tik ištrintus, archyvuotus ir suspaustus duomenis", "Tik viešus, vidinius ir konfidencialius duomenis", "Tik el. laiškus, failus ir slaptažodžius", "Naudojamus, perduodamus ir saugomus duomenis"], "c": 3}, {"q": "Kuris NIS2 reikalavimas tiesiogiai susijęs su rizikos valdymu?", "a": ["Atsisakyti automatinių įspėjimų", "Naudoti tik vieną DLP produktą", "Įgyvendinti tinkamas technines ir organizacines priemones rizikai valdyti", "Visus duomenis saugoti viešai"], "c": 2}, {"q": "Kokias informacijos savybes NIS2 kontekste turi padėti užtikrinti duomenų apsaugos priemonės?", "a": ["Greitį, spalvą ir dydį", "Anonimiškumą, archyvavimą ir suspaudimą", "Tik prieinamumą", "Konfidencialumą, vientisumą ir prieinamumą"], "c": 3}, {"q": "Kada pagal medžiagą turi būti teikiamos incidentų ataskaitos?", "a": ["Tik pasibaigus metams", "Apie reikšmingus incidentus atitinkamoms institucijoms", "Apie kiekvieną darbuotojo prisijungimą", "Tik apie pamirštus slaptažodžius"], "c": 1}, {"q": "Kuris DLP tikslas susijęs su teisės aktų laikymusi?", "a": ["Kompiuterių našumo didinimas", "Programavimo procesų automatizavimas", "Atitiktis NIS2, GDPR ir kitiems reglamentiniams reikalavimams", "Interneto srauto spartinimas"], "c": 2}, {"q": "Ką DLP gali padėti apsaugoti intelektinės nuosavybės srityje?", "a": ["Tik viešai skelbiamą informaciją", "Komercines paslaptis ir patentuotą informaciją", "Tik tinklo įrenginių pavadinimus", "Tik darbuotojų darbo grafikus"], "c": 1}, {"q": "Koks pavyzdys pateiktas apie Sony?", "a": ["Sony naudojo DLP tik darbuotojų mokymams", "Po 2014 m. reikšmingo duomenų nutekėjimo buvo įgyvendinti DLP sprendimai jautriems duomenims stebėti ir apsaugoti", "Sony DLP naudojo tik interneto greičiui didinti", "Sony atsisakė visų duomenų apsaugos priemonių"], "c": 1}, {"q": "Kas yra duomenų identifikavimas DLP kontekste?", "a": ["Darbuotojų tapatybės nustatymas", "Atsarginių kopijų ištrynimas", "Kompiuterių IP adresų keitimas", "Jautrios informacijos nustatymas, kad būtų aišku, ką reikia apsaugoti"], "c": 3}, {"q": "Ką atlieka turinio patikrinimas?", "a": ["Ištrina visus el. laiškus", "Keičia tinklo maršrutus", "Kurti darbuotojų paskyras", "Analizuoja duomenis, siekiant nustatyti jautrią informaciją"], "c": 3}, {"q": "Kam naudojamos klasifikavimo žymės?", "a": ["Nustatyti interneto greitį", "Pažymėti duomenis pagal jautrumo lygius", "Stebėti procesoriaus temperatūrą", "Automatiškai pakeisti slaptažodžius"], "c": 1}, {"q": "Kuo skiriasi iš anksto nustatytos DLP politikos nuo individualių politikų?", "a": ["Iš anksto nustatytos naudoja šablonus bendriems reglamentams, o individualios pritaikomos organizacijos poreikiams", "Iš anksto nustatytos skirtos tik darbuotojų mokymams", "Individualios skirtos tik tinklams", "Jos visiškai nesiskiria"], "c": 0}, {"q": "Kokia yra galinių taškų apsaugos paskirtis DLP sprendime?", "a": ["Stebėti tik viešas interneto svetaines", "Stebėti duomenis naudotojų įrenginiuose", "Kurti atsargines kopijas debesijoje", "Valdyti pastato fizinę apsaugą"], "c": 1}, {"q": "Ką atlieka tinklo stebėjimas DLP sprendime?", "a": ["Tikrina duomenų perdavimus per tinklą", "Keičia darbuotojų roles", "Atlieka fizinį serverių remontą", "Kuria teisines sutartis"], "c": 0}, {"q": "Kam skirta debesijos DLP?", "a": ["Tik fizinių durų kontrolei", "Tik darbuotojų mokymams", "Tik vietinių spausdintuvų apsaugai", "Debesijos paslaugų ir saugyklų apsaugai"], "c": 3}, {"q": "Ką gali atlikti DLP automatizuoti veiksmai?", "a": ["Tik kurti atsarginių kopijų grafikus", "Tik keisti kompiuterio ekrano foną", "Blokuoti, karantinuoti ar šifruoti duomenis, kai būtina", "Tik siųsti darbuotojams atlyginimus"], "c": 2}, {"q": "Kokią funkciją atlieka DLP įspėjimai ir pranešimai?", "a": ["Keičia organizacijos struktūrą", "Automatiškai pašalina darbuotojų paskyras", "Informuoja saugumo komandas apie politikos pažeidimus", "Išjungia visus serverius"], "c": 2}, {"q": "Koks Pfizer pavyzdys pateiktas medžiagoje?", "a": ["DLP naudojamas tik atsarginių kopijų kūrimui", "DLP naudojamas tik darbuotojų atrankai", "DLP naudojamas užkirsti kelią konfidencialių tyrimų duomenų neteisėtam dalinimuisi", "DLP naudojamas tik tinklo maršrutizavimui"], "c": 2}, {"q": "Kodėl duomenų identifikavimas yra būtinas?", "a": ["Kad būtų žinoma, kokius duomenis reikia apsaugoti", "Kad būtų galima padidinti interneto greitį", "Kad būtų galima išjungti visus įspėjimus", "Kad būtų galima atsisakyti klasifikavimo"], "c": 0}, {"q": "Kokia yra politikos vykdymo paskirtis?", "a": ["Pakeisti darbuotojų atlyginimus", "Sukurti naujus tinklo protokolus", "Užtikrinti vienodą saugumo priemonių taikymą", "Išjungti visus saugumo įspėjimus"], "c": 2}, {"q": "Nuo ko reikėtų pradėti DLP įgyvendinimą organizacijoje?", "a": ["Nuo interneto išjungimo", "Nuo visų vartotojų blokavimo", "Nuo visų duomenų ištrynimo", "Nuo organizacijos poreikių vertinimo"], "c": 3}, {"q": "Kas yra duomenų žemėlapio sudarymo tikslas?", "a": ["Nustatyti serverių elektros sąnaudas", "Nustatyti darbuotojų atostogų datas", "Nustatyti, kur yra jautrūs duomenys ir kaip jie teka", "Nustatyti viešų svetainių lankomumą"], "c": 2}, {"q": "Kodėl atliekamas DLP rizikos vertinimas?", "a": ["Kad būtų padidintas interneto greitis", "Kad būtų išjungti saugumo žurnalai", "Kad būtų pasirinktas darbuotojų aprangos kodas", "Kad būtų įvertinti galimi duomenų praradimo scenarijai"], "c": 3}, {"q": "Kam skirti įmonės DLP sprendimai?", "a": ["Tik namų vartotojams", "Tik darbuotojų atrankai", "Tik fizinių durų apsaugai", "Išsamiems DLP sprendimams didelėse organizacijose"], "c": 3}, {"q": "Kas yra integruotas DLP?", "a": ["Atskiras fizinis serveris be ryšio su kitomis sistemomis", "Tik atsarginių kopijų sistema", "Tik mokymo programa", "DLP funkcijos, integruotos į esamas saugumo priemones"], "c": 3}, {"q": "Kada ypač aktualus debesijos DLP pasirinkimas?", "a": ["Kai nėra jokio tinklo", "Kai organizacija plačiai naudoja debesijos paslaugas", "Kai naudojami tik popieriniai dokumentai", "Kai organizacija neturi jokių duomenų"], "c": 1}, {"q": "Su kokiais reglamentais DLP politikos turi būti derinamos pagal medžiagą?", "a": ["Tik su techninės įrangos garantijomis", "NIS2, GDPR ir kitais reglamentais", "Tik su darbuotojų darbo grafikais", "Tik su rinkodaros gairėmis"], "c": 1}, {"q": "Ką atspindi verslo politikos DLP kontekste?", "a": ["Tik fizinių serverių temperatūrą", "Vidines duomenų tvarkymo ir dalinimosi taisykles", "Tik darbuotojų atlyginimus", "Tik viešų svetainių dizainą"], "c": 1}, {"q": "Kuo naudingas fazinis DLP diegimas?", "a": ["Neleidžia stebėti duomenų", "Panaikina poreikį testuoti", "Padeda sumažinti trikdžius ir pritaikyti politikas", "Užtikrina, kad visi duomenys būtų iškart ištrinti"], "c": 2}, {"q": "Nuo ko rekomenduojama pradėti fazinį diegimą?", "a": ["Nuo duomenų ištrynimo", "Nuo bandomojo testavimo mažoje grupėje ar skyriuje", "Nuo visos organizacijos blokavimo", "Nuo visų politikų išjungimo"], "c": 1}, {"q": "Kas yra stebėjimo režimas DLP diegimo metu?", "a": ["Aptikimo režimas, leidžiantis suprasti poveikį prieš aktyvų blokavimą", "Režimas be jokių žurnalų", "Režimas, skirtas tik darbuotojų mokymams", "Režimas, kuriame visi duomenys ištrinami"], "c": 0}, {"q": "Ką reiškia laipsniškas DLP vykdymas?", "a": ["Palaipsniui taikyti blokuojančius veiksmus, kai politikos patobulintos", "Palaipsniui trinti duomenis", "Palaipsniui išjungti visas saugumo priemones", "Iš karto blokuoti visą organizacijos tinklą"], "c": 0}, {"q": "Koks DLP diegimo pavyzdys pateiktas apie Coca-Cola?", "a": ["DLP naudota tik interneto spartai didinti", "DLP diegta etapais, pradėjus nuo stebėjimo, kad būtų nustatyti duomenų praradimo modeliai", "DLP naudota tik darbuotojų atrankai", "DLP buvo visiškai atsisakyta"], "c": 1}, {"q": "Kokia yra viena pagrindinių DLP problemų?", "a": ["Per maža darbuotojų kaita", "Per didelis popierinių dokumentų kiekis", "Klaidingi teigiami signalai", "Per didelis interneto greitis"], "c": 2}, {"q": "Kas yra klaidingai teigiamas signalas?", "a": ["Kai teisėta veikla neteisingai pažymima kaip pažeidimas", "Kai duomenys sėkmingai užšifruojami", "Kai darbuotojas gauna mokymus", "Kai pažeidimas lieka visiškai nepastebėtas"], "c": 0}, {"q": "Kodėl vartotojai gali priešintis DLP sprendimams?", "a": ["Jiems padidinamas interneto greitis", "Jie gali jaustis suvaržyti nustatytų apribojimų", "Jiems suteikiama per daug teisių", "Jie gauna per daug atsarginių kopijų"], "c": 1}, {"q": "Koks yra vienas DLP sprendimų iššūkių?", "a": ["Automatinis visų duomenų ištrynimas", "Sudėtingumas konfigūruoti ir valdyti", "Nesugebėjimas naudoti žurnalų", "Visiškas duomenų nebuvimas"], "c": 1}, {"q": "Kodėl darbuotojų mokymas svarbus DLP srityje?", "a": ["Jis leidžia išjungti stebėjimą", "Jis padeda informuoti darbuotojus apie DLP ir duomenų saugumo svarbą", "Jis pakeičia visas technines priemones", "Jis panaikina poreikį turėti politikas"], "c": 1}, {"q": "Kaip turėtų būti optimizuojamos DLP politikos?", "a": ["Niekada jų nekeičiant", "Tik kartą per dešimt metų", "Visas jas išjungiant", "Reguliariai tobulinant jas, kad būtų sumažinti klaidingi teigiami signalai"], "c": 3}, {"q": "Kokius padalinius rekomenduojama įtraukti į DLP politikų kūrimą?", "a": ["Tik rinkodaros padalinį", "Personalo, teisės ir verslo padalinius", "Tik IT techninės priežiūros darbuotojus", "Tik apsaugos darbuotojus"], "c": 1}, {"q": "Ką reiškia nuolatinis DLP stebėjimas ir tobulinimas?", "a": ["Reguliariai vertinti DLP efektyvumą ir atnaujinti, kai reikia", "Kartą įdiegti DLP ir daugiau jo nevaldyti", "Niekada nekeisti konfigūracijos", "Išjungti visus audito žurnalus"], "c": 0}, {"q": "Koks pavyzdys pateiktas apie HSBC?", "a": ["HSBC atsisakė DLP", "HSBC išjungė visus mokymus", "Pradinį darbuotojų pasipriešinimą mažino išsamūs mokymai ir darbuotojų įtraukimas į politikos kūrimą", "HSBC naudojo DLP tik serverių remontui"], "c": 2}, {"q": "Kuo DLP padeda užtikrinti NIS2 atitiktį?", "a": ["Pakeičia visus NIS2 reikalavimus", "Padeda valdyti kibernetines grėsmes ir aptikti bei padėti pranešti apie reikšmingus incidentus", "Panaikina incidentų ataskaitų poreikį", "Leidžia ignoruoti rizikos valdymą"], "c": 1}, {"q": "Kaip DLP gali prisidėti prie GDPR laikymosi?", "a": ["Apsaugodamas asmens duomenis ir padėdamas išvengti baudų", "Atsisakydamas duomenų klasifikavimo", "Ištrindamas visus asmens duomenis", "Suteikdamas prieigą visiems darbuotojams"], "c": 0}, {"q": "Koks pramonės reglamentas pateiktas kaip pavyzdys?", "a": ["IEEE 802.11 belaidžiams tinklams", "BGP tinklų standartas", "HTTP protokolas", "PCI DSS mokėjimo duomenims"], "c": 3}, {"q": "Kam reikalingi DLP audito takeliai?", "a": ["Žurnalams palaikyti atitikties auditams ir tyrimams", "Interneto spartai matuoti", "Darbuotojų atostogoms planuoti", "Serverių fizinei temperatūrai valdyti"], "c": 0}, {"q": "Ką turi leisti DLP ataskaitų teikimo galimybės?", "a": ["Kurti ataskaitas, parodančias atitikties pastangas", "Panaikinti auditų poreikį", "Automatiškai pakeisti visus darbuotojus", "Išjungti visus saugumo įrankius"], "c": 0}, {"q": "Koks pavyzdys pateiktas apie British Airways?", "a": ["DLP įgyvendintas tik interneto spartai didinti", "DLP naudotas tik darbuotojų atrankai", "DLP buvo visiškai atsisakyta", "DLP įgyvendintas po GDPR baudų, siekiant pagerinti duomenų apsaugą ir atitikties ataskaitų teikimą"], "c": 3}, {"q": "Kodėl DLP dokumentavimas yra būtinas?", "a": ["Kad būtų galima panaikinti politikas", "Kad būtų galima išjungti auditą", "Atitikties demonstravimui ir vidiniams vertinimams", "Kad būtų galima išvengti duomenų klasifikavimo"], "c": 2}, {"q": "Koks yra vienas pagrindinių DLP principų išvadose?", "a": ["DLP turi būti naudojamas atskirai nuo visų kitų saugumo priemonių", "DLP turi būti platesnės duomenų apsaugos strategijos dalis", "DLP reikia įdiegti tik vienai dienai", "DLP skirtas tik darbuotojų mokymams"], "c": 1}, {"q": "Kodėl DLP politiką ir konfigūracijas reikia reguliariai atnaujinti?", "a": ["Kad būtų išjungti visi įspėjimai", "Kad DLP būtų nuolat valdomas ir optimizuojamas", "Kad būtų galima panaikinti duomenų apsaugą", "Kad būtų ištrinti visi audito takeliai"], "c": 1}, {"q": "Koks turėtų būti pirmasis praktinis veiksmas planuojant DLP?", "a": ["Ištrinti visus jautrius duomenis", "Įvertinti organizacijos duomenų praradimo rizikas", "Iškart blokuoti visus el. laiškus", "Išjungti klasifikavimo mechanizmus"], "c": 1}, {"q": "Ką reikia padaryti renkantis DLP sprendimą?", "a": ["Rinktis tik fizinę apsaugą", "Pasirinkti priemones, tinkamas organizacijos aplinkai", "Rinktis bet kokį sprendimą nevertinant poreikių", "Atsisakyti debesijos apsaugos"], "c": 1}, {"q": "Ką svarbu atlikti įgyvendinant DLP?", "a": ["Neįtraukti darbuotojų į procesą", "Neleisti teisės padaliniui dalyvauti", "Įtraukti svarbius departamentus ir mokyti vartotojus", "Nenaudoti mokymų"], "c": 2}, {"q": "Ką reiškia nuolatinis DLP įgyvendinimo koregavimas?", "a": ["Išjungti visas politikas", "Nuolat stebėti ir tobulinti DLP veikimą", "Atsisakyti vertinimų", "Vieną kartą sukonfigūruoti ir niekada nekeisti"], "c": 1}, {"q": "Kokia platesnė nauda siejama su DLP sprendimų įgyvendinimu?", "a": ["Jie pakeičia visą organizacijos IT infrastruktūrą", "Jie panaikina visus kibernetinius incidentus", "Jie padeda ne tik vykdyti reglamentus, bet ir stiprina bendrą kibernetinio saugumo atsparumą", "Jie skirti tik rinkodarai"], "c": 2}, {"q": "Kokią naudą gali skatinti proaktyvi duomenų apsauga?", "a": ["Mažesnį duomenų klasifikavimo poreikį", "Visišką audito panaikinimą", "Mažesnį saugumo stebėjimą", "Pasitikėjimą tarp klientų ir partnerių"], "c": 3}, {"q": "Kuris teiginys geriausiai apibūdina DLP kaip ilgalaikį sprendimą?", "a": ["DLP veikia be jokių politikų", "DLP skirta tik vienam incidentui", "DLP reikalauja nuolatinio valdymo, politikų atnaujinimo ir optimizavimo", "DLP įdiegiama vieną kartą ir daugiau nereikalauja priežiūros"], "c": 2}];
+let quiz=[], index=0, score=0, answered=false;
+
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  const dark=document.body.classList.contains('dark');
+  localStorage.setItem('darkMode', dark?'1':'0');
+  document.getElementById('themeBtn').textContent=dark?'☀️ Light mode':'🌙 Dark mode';
+}
+if(localStorage.getItem('darkMode')==='1'){
+  document.body.classList.add('dark');
+  document.getElementById('themeBtn').textContent='☀️ Light mode';
+}
+
+function start(){
+  quiz=[...bank].sort(()=>Math.random()-.5).slice(0,10);
+  index=0; score=0; answered=false; render();
+}
+function render(){
+  const item=quiz[index];
+  document.getElementById('quiz').innerHTML=`
+    <div class="progress">Question ${index+1} of ${quiz.length}</div>
+    <div class="card">
+      <div class="question">${escapeHtml(item.q)}</div>
+      <div class="answers">${item.a.map((a,i)=>`<button class="answer" onclick="answer(${i})">${escapeHtml(a)}</button>`).join('')}</div>
+      <button class="next" id="next" onclick="next()" disabled>${index===quiz.length-1?'Finish →':'Next question →'}</button>
+    </div>`;
+}
+function answer(choice){
+  if(answered)return;
+  answered=true;
+  const item=quiz[index];
+  const buttons=[...document.querySelectorAll('.answer')];
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===item.c)b.classList.add('correct');
+  });
+  if(choice===item.c) score++;
+  else buttons[choice].classList.add('wrong');
+  document.getElementById('next').disabled=false;
+}
+function next(){
+  if(!answered)return;
+  if(index===quiz.length-1){showResult();return;}
+  index++; answered=false; render();
+}
+function showResult(){
+  const pct=score*10;
+  document.getElementById('quiz').innerHTML=`
+    <div class="card result">
+      <div class="progress">Quiz completed</div>
+      <h2>Your result</h2>
+      <div class="score">${score} / 10</div>
+      <div class="percent">${pct}%</div>
+      <button class="retry" onclick="start()">Try again</button>
+    </div>`;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+start();
+</script>
+</body>
+</html>
