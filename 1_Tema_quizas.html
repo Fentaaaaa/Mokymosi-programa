@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1 Tema</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f6fb;color:#182230;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 40px}
+.card{background:white;border-radius:20px;padding:28px;box-shadow:0 10px 35px rgba(20,40,70,.09)}
+h1{margin:0 0 8px;font-size:30px} h2{font-size:24px;line-height:1.35;margin:22px 0}
+.muted{color:#667085}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.progress{height:8px;background:#e7ebf1;border-radius:99px;overflow:hidden;margin:18px 0 26px}
+.bar{height:100%;width:0;background:#2563eb;transition:.25s}
+.answers{display:grid;gap:12px}
+.answer{width:100%;padding:16px 18px;border:2px solid #d9dee7;border-radius:13px;background:#fff;text-align:left;font-size:16px;cursor:pointer;transition:.15s}
+.answer:hover{border-color:#8ea9d7;background:#f8fbff}
+.answer.correct{background:#dff6e7;border-color:#22a35a;color:#146c36}
+.answer.wrong{background:#ffe1e1;border-color:#e34848;color:#9e2020}
+.answer:disabled{cursor:default}
+.feedback{min-height:26px;margin-top:16px;font-weight:650}
+.next{display:none;margin-top:18px;width:100%;padding:14px;border:0;border-radius:12px;background:#182230;color:white;font-size:16px;font-weight:700;cursor:pointer}
+.next.show{display:block}
+.result{text-align:center}
+.score{font-size:48px;font-weight:800;margin:12px 0}
+button.restart{padding:14px 22px;border:0;border-radius:12px;background:#2563eb;color:white;font-weight:700;cursor:pointer;font-size:16px}
+.small{font-size:14px}
+
+body.dark{background:#101418;color:#edf2f7}
+body.dark .card{background:#1b222b;box-shadow:0 10px 35px rgba(0,0,0,.35)}
+body.dark .muted{color:#aab5c3}
+body.dark .progress{background:#303946}
+body.dark .answer{background:#202933;border-color:#3b4654;color:#edf2f7}
+body.dark .answer:hover{border-color:#7895bd;background:#27313d}
+body.dark .answer.correct{background:#163d28;border-color:#36b66a;color:#8ee2ae}
+body.dark .answer.wrong{background:#4a2023;border-color:#ef6262;color:#ffb1b1}
+body.dark .next{background:#edf2f7;color:#182230}
+body.dark .theme-btn{background:#2a3440;border-color:#465362;color:#edf2f7}
+.theme-btn{padding:9px 12px;border:1px solid #d7dde6;border-radius:10px;background:#fff;color:#182230;cursor:pointer;font-weight:650;font-size:14px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<div id="quiz">
+<div class="top"><div><h1>1 Tema</h1><div class="muted">Kibernetinio saugumo įvadas</div></div><div style="display:flex;align-items:center;gap:10px"><button class="theme-btn" id="themeBtn" onclick="toggleDark()">🌙 Dark mode</button><strong id="counter">1 / 10</strong></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<h2 id="question"></h2>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<button class="next" id="next">Kitas klausimas →</button>
+</div>
+<div id="result" class="result" style="display:none">
+<h1>1 Tema</h1>
+<div class="muted">Testas baigtas</div>
+<div class="score" id="score"></div>
+<p id="details"></p>
+<button class="restart" onclick="startQuiz()">Pradėti iš naujo</button>
+</div>
+</div>
+</div>
+<script>
+const bank = [{"q": "Kas yra pagrindinis objektas, kurį siekiama apsaugoti kibernetiniu saugumu?", "a": ["Elektros tinklas", "Informacija", "Tik vartotojo įrenginys", "Pastato konstrukcija"], "c": 1}, {"q": "Ką apima kibernetinis saugumas?", "a": ["Saugumo užtikrinimą skaitmeniniuose įrenginiuose, sistemose ir tinkluose", "Tik antivirusinių programų diegimą", "Tik fizinių serverių apsaugą", "Tik slaptažodžių keitimą"], "c": 0}, {"q": "Kibernetinė erdvė skaidrėse įvardijama kaip kokia karinių veiksmų vieta?", "a": ["Trečioji", "Penktoji", "Dešimtoji", "Antroji"], "c": 1}, {"q": "Kodėl išaugo galimybės siekti naudos kitų asmenų ar organizacijų sąskaita?", "a": ["Nes buvo panaikinti tinklai", "Nes visi kompiuteriai tapo neprisijungę prie interneto", "Nes sumažėjo informacijos kiekis", "Išaugęs informacinių sistemų kiekis atvėrė didesnę erdvę atakoms"], "c": 3}, {"q": "Kas būdinga šiuolaikinei kibernetinei aplinkai?", "a": ["Tik fizinės grėsmės", "Visiškas grėsmių išnykimas", "Nuolatinės ir augančios grėsmės bei nauji įsilaužimo modeliai", "Nėra saugumo spragų"], "c": 2}, {"q": "Kuri priežastis minima kaip svarbi sėkmingoms atakoms?", "a": ["Visada būtinas fizinis serverio sunaikinimas", "Tik pasenusi aparatinė įranga", "Žmogiškųjų pažeidžiamumų išnaudojimas", "Visada būtinas elektros tiekimo nutraukimas"], "c": 2}, {"q": "Kas buvo būdinga pirmos kartos kibernetinėms grėsmėms devintajame dešimtmetyje?", "a": ["IoT nanoagentai", "Debesijos atakos", "Valstybių remiamos megaatakos", "Virusai, plitę per diskelius ir atakavę atskirus kompiuterius"], "c": 3}, {"q": "Kas paskatino ugniasienių diegimą antros kartos grėsmių laikotarpiu?", "a": ["Greitai plintančios kirminų atakos iš interneto", "Biometrinių duomenų naudojimas", "5G tinklų plėtra", "Ransomware atsiradimas"], "c": 0}, {"q": "Kas būdinga trečiajai kibernetinių grėsmių kartai apie 2000 m.?", "a": ["Kibernetinis nusikalstamumas pradėjo veikti kaip verslas", "Išskirtinai IoT įrenginių apsauga", "Pirmieji 5G tinklai", "Tik fizinės vagystės"], "c": 0}, {"q": "Kokia technologija buvo plėtojama dėl trečios kartos atakų?", "a": ["IDS/IPS sistemos", "Tik atsarginės kopijos", "Duomenų klasifikavimo lentelės", "SLA sutartys"], "c": 0}, {"q": "Kas būdinga ketvirtajai kibernetinių grėsmių kartai?", "a": ["Tik fizinės nelaimės", "Atakos tik per diskelius", "Tikslinės atakos, kurioms nebuvo žinomų parašų", "Tik šlamšto siuntimas"], "c": 2}, {"q": "Kas pradėjo ryškėti penktos kartos atakų laikotarpiu nuo maždaug 2017 m.?", "a": ["Tik virusai per diskelius", "Tik slaptažodžių keitimas", "Didelio masto, dažnai valstybių remiamos megaatakos", "Tik fizinis įsilaužimas"], "c": 2}, {"q": "Kuris įvykis skaidrėse pateikiamas kaip penktos kartos pavyzdys?", "a": ["HTTP", "WannaCry", "PCI DSS", "SLA"], "c": 1}, {"q": "Kas, skaidrių medžiagoje, siejama su šeštos kartos saugumu?", "a": ["Tik slaptažodžių politikos", "Tik ugniasienės perimetre", "Nano saugumo agentai prijungtuose IoT įrenginiuose", "Diskelių antivirusai"], "c": 2}, {"q": "Kas yra autentifikacija?", "a": ["Duomenų šifravimas", "Naudotojo, įrenginio ar sistemos tapatybės tikrinimas", "Prieigos prie konkrečių duomenų suteikimas pagal teises", "Naudotojo veiksmų fiksavimas"], "c": 1}, {"q": "Kas yra autorizacija?", "a": ["Naudotojo veiksmų fiksavimas", "Tapatybės tikrinimas", "Prieigos prie konkrečių išteklių ar duomenų suteikimas arba uždraudimas pagal teises", "Duomenų pavertimas maiša"], "c": 2}, {"q": "Kas yra apskaita (accounting)?", "a": ["Slaptažodžio patikrinimas", "Kiekvieno naudotojo sistemoje atliekamų veiksmų fiksavimas", "Prieigos teisių suteikimas", "Duomenų šifravimas"], "c": 1}, {"q": "Kuris pavyzdys priklauso autentifikacijos faktoriui „ką aš žinau?“?", "a": ["Piršto antspaudas", "Praėjimo kortelė", "Kompiuterio IP adresas", "Slaptažodis arba PIN kodas"], "c": 3}, {"q": "Kuris pavyzdys priklauso autentifikacijos faktoriui „ką aš turiu?“?", "a": ["Slaptažodis", "Vartotojo vardas", "Piršto antspaudas", "Praėjimo kortelė arba kodų generatorius"], "c": 3}, {"q": "Kuris pavyzdys priklauso autentifikacijos faktoriui „kas aš esu?“?", "a": ["Praėjimo kortelė", "Biometriniai duomenys", "Slaptažodis", "Kodas iš el. laiško"], "c": 1}, {"q": "Ką reiškia konfidencialumas CIA triadoje?", "a": ["Visi naudotojai turi vienodas teises", "Duomenys visada pasiekiami 24/7", "Duomenys negali būti keičiami", "Duomenys prieinami tik toms šalims, kurios turėtų juos pasiekti"], "c": 3}, {"q": "Ką reiškia integralumas (vientisumas)?", "a": ["Duomenys yra autentiški ir nebuvo neteisėtai modifikuoti", "Duomenys saugomi tik debesyje", "Duomenys visada šifruojami", "Duomenys prieinami visiems"], "c": 0}, {"q": "Ką reiškia prieinamumas CIA triadoje?", "a": ["Duomenys negali būti keičiami", "Autorizuoti naudotojai gali pasiekti duomenis, kai to reikia", "Duomenys visada laikomi užšifruoti", "Duomenys prieinami tik administratoriui"], "c": 1}, {"q": "Kuri priemonė užtikrina konfidencialumą?", "a": ["Kontrolinė suma", "Atsarginė kopija", "SLA", "Šifravimas"], "c": 3}, {"q": "Kuri priemonė padeda užtikrinti duomenų integralumą?", "a": ["SLA", "Maišos funkcijos", "Prieinamumo garantija", "Tik šifravimas"], "c": 1}, {"q": "Kuri priemonė padeda užtikrinti duomenų prieinamumą?", "a": ["Tik slaptažodžiai", "Tik duomenų klasifikavimas", "Aukšto patikimumo sistemos", "Tik maišos funkcijos"], "c": 2}, {"q": "Kuo skiriasi šifravimas nuo maišos?", "a": ["Šifravimas yra grįžtamasis, o maiša skirta vienkrypčiam pavertimui", "Abu visada yra negrįžtami", "Šifravimas nenaudoja rakto", "Maiša visada iššifruojama raktu"], "c": 0}, {"q": "Kam daugiausia naudojamas šifravimas?", "a": ["Tik apskaitai", "Konfidencialumui užtikrinti", "Tik rizikos vertinimui", "Tik duomenų klasifikavimui"], "c": 1}, {"q": "Kokia yra maišos funkcijos savybė?", "a": ["Ji generuoja fiksuoto ilgio reikšmę ir nėra skirta atstatyti pradinius duomenis", "Ji skirta tik prieinamumui", "Ji nenaudoja algoritmo", "Ji visada leidžia atkurti pradinius duomenis"], "c": 0}, {"q": "Kas yra kodavimas?", "a": ["Naudotojo tapatybės tikrinimas", "Duomenų pavertimas kitu formatu naudojant algoritmą, bet nenaudojant rakto", "Duomenų šifravimas raktu", "Rizikos įvertinimas"], "c": 1}, {"q": "Kas yra kenkėjiška programinė įranga?", "a": ["Bet kuri atsarginė kopija", "Tik teisėta sistemos programinė įranga", "Tik duomenų bazė", "Programinė įranga, skirta sutrikdyti, sugadinti ar gauti neteisėtą prieigą"], "c": 3}, {"q": "Kas yra pažeidžiamumas?", "a": ["Sistemos, programinės įrangos ar proceso trūkumas, kurį gali išnaudoti užpuolikas", "Tik fizinis serverio gedimas", "Bet koks vartotojo veiksmas", "Saugumo politika"], "c": 0}, {"q": "Kas yra grėsmė?", "a": ["Tik programinės įrangos klaida", "Galimas pavojus arba žalingas įvykis, galintis išnaudoti pažeidžiamumą", "Tik atsarginė kopija", "Tik jau įvykusi ataka"], "c": 1}, {"q": "Kas yra rizika?", "a": ["Tik saugumo kontrolė", "Tikimybė ir galimas grėsmės, išnaudojančios pažeidžiamumą, poveikis", "Tik grėsmės pavadinimas", "Tik pažeidžiamumo tipas"], "c": 1}, {"q": "Ką reiškia GRC?", "a": ["Global Recovery Center", "Governance, Recovery and Coding", "Governance, Risk and Compliance", "General Risk Control"], "c": 2}, {"q": "Ką apima GRC valdymo dalis?", "a": ["Tik tinklo kabelius", "Tik antivirusinę programą", "Strategiją, politikas, procedūras ir vadovybės požiūrį", "Tik atsargines kopijas"], "c": 2}, {"q": "Koks yra pirmasis rizikos valdymo žingsnis pagal skaidres?", "a": ["Rizikos stebėjimas", "Rizikos identifikavimas", "Auditas", "Rizikos mažinimas"], "c": 1}, {"q": "Ką apima rizikos įvertinimas?", "a": ["Galimo poveikio ir atsiradimo tikimybės nustatymą", "Tik darbuotojų mokymus", "Tik duomenų šifravimą", "Tik programinės įrangos atnaujinimą"], "c": 0}, {"q": "Ką reiškia rizikos mažinimas?", "a": ["Rizikos ignoravimą", "Tik rizikos registravimą", "Strategijų ir veiksmų planų kūrimą rizikos poveikiui ar tikimybei sumažinti", "Tik audito atlikimą"], "c": 2}, {"q": "Kuri iš šių grupių yra viena iš trijų pagrindinių kibernetinių grėsmių grupių?", "a": ["Techninės grėsmės", "Marketingo grėsmės", "Administracinės grėsmės", "Finansinės grėsmės"], "c": 0}, {"q": "Kuri iš šių yra fizinė grėsmė?", "a": ["Spyware", "Socialinė inžinerija", "Ransomware", "Gaisras"], "c": 3}, {"q": "Kuri iš šių yra socialinė grėsmė?", "a": ["Virusas", "Serverio perkaitimas", "DDoS ataka", "Socialinė inžinerija"], "c": 3}, {"q": "Kas yra ransomware?", "a": ["Duomenų klasifikavimo metodas", "Autentifikacijos faktorius", "Atsarginių kopijų tipas", "Kenkėjiška programinė įranga, kuria nusikaltėliai reikalauja iš aukos išpirkos"], "c": 3}, {"q": "Kuris iš šių gali būti ransomware platinimo būdas?", "a": ["Kenkėjiški el. pašto priedai", "Tik biometrinis autentifikavimas", "Tik duomenų klasifikavimas", "Tik SLA sutartys"], "c": 0}, {"q": "Kuri priemonė padeda apsisaugoti nuo ransomware?", "a": ["Atsarginės kopijos ir jų periodinis testavimas", "Saugumo atnaujinimų atsisakymas", "Slaptažodžių pašalinimas", "Visų tinklo segmentų sujungimas"], "c": 0}, {"q": "Koks atsarginių kopijų mechanizmas naudojamas apsaugai nuo duomenų praradimo?", "a": ["3-2-1 mechanizmas", "5-5-5 mechanizmas", "1-1-1 mechanizmas", "10-2-1 mechanizmas"], "c": 0}, {"q": "Kuri priemonė gali padėti apsisaugoti nuo ransomware?", "a": ["Visų vartotojų administratoriaus teisės", "Atnaujinimų išjungimas", "Atsarginių kopijų atsisakymas", "Programinės įrangos atnaujinimai (patching)"], "c": 3}, {"q": "Kuri priemonė gali padėti apsisaugoti nuo ransomware?", "a": ["Saugumo mokymų atsisakymas", "Visų sistemų sujungimas į vieną tinklą", "Tinklo segmentavimas ir aplinkų atskyrimas", "Prieigos kontrolės panaikinimas"], "c": 2}, {"q": "Kuri iš šių yra kibernetinio saugumo grėsmė?", "a": ["Monitoriaus gedimas", "Popierinių dokumentų rūšiavimas", "Klaviatūros valymas", "Socialinė inžinerija"], "c": 3}, {"q": "Kuri grėsmė susijusi su pažeidžiamumais debesijos platformose?", "a": ["SLA", "Debesijos platformų pažeidžiamumai", "Biometrinis autentifikavimas", "Kodavimas"], "c": 1}, {"q": "Kokia fizinė grėsmė gali sutrikdyti informacinių sistemų prieinamumą?", "a": ["Ransomware", "Maišos funkcija", "Socialinė inžinerija", "Potvynis"], "c": 3}, {"q": "Ką reiškia būtinybės žinoti principas?", "a": ["Prieiga prie neskelbtinos informacijos suteikiama tik turint teisėtą poreikį ją pasiekti", "Visiems suteikiama prieiga prie visos informacijos", "Informacija niekada neklasifikuojama", "Visi vartotojai turi administratoriaus teises"], "c": 0}];
+let quiz=[], index=0, score=0, answered=false;
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){
+  quiz=shuffle([...bank]).slice(0,10);
+  index=0; score=0; $("quiz").style.display="block"; $("result").style.display="none"; render();
+}
+function render(){
+  const item=quiz[index]; answered=false;
+  $("counter").textContent=`${index+1} / 10`;
+  $("bar").style.width=`${(index/10)*100}%`;
+  $("question").textContent=item.q;
+  $("feedback").textContent="";
+  $("next").classList.remove("show");
+  $("answers").innerHTML="";
+  item.a.forEach((text,i)=>{
+    const b=document.createElement("button"); b.className="answer"; b.textContent=`${String.fromCharCode(65+i)}. ${text}`;
+    b.onclick=()=>choose(i,b); $("answers").appendChild(b);
+  });
+}
+function choose(i,button){
+ if(answered)return; answered=true;
+ const item=quiz[index], buttons=[...document.querySelectorAll(".answer")];
+ buttons.forEach(b=>b.disabled=true);
+ if(i===item.c){score++;button.classList.add("correct");$("feedback").textContent="✓ Teisingas atsakymas";$("feedback").style.color="#146c36";}
+ else{button.classList.add("wrong");buttons[item.c].classList.add("correct");$("feedback").textContent="✗ Neteisingas atsakymas";$("feedback").style.color="#9e2020";}
+ $("next").classList.add("show");
+}
+$("next").onclick=()=>{index++; if(index<10)render(); else finish();};
+function finish(){
+ $("quiz").style.display="none"; $("result").style.display="block"; $("score").textContent=`${score} / 10`;
+ $("details").textContent=`Teisingi atsakymai: ${score} · Neteisingi: ${10-score} · Rezultatas: ${score*10}%`;
+}
+
+function toggleDark(){
+  document.body.classList.toggle("dark");
+  const dark=document.body.classList.contains("dark");
+  $("themeBtn").textContent=dark?"☀️ Light mode":"🌙 Dark mode";
+  localStorage.setItem("quizDarkMode", dark?"1":"0");
+}
+if(localStorage.getItem("quizDarkMode")==="1"){
+  document.body.classList.add("dark");
+}
+
+startQuiz();
+</script>
+</body>
+</html>
