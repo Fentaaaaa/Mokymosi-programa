@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3 Tema – Organizacijos saugumo politikos rengimas</title>
+<style>
+:root { --bg:#f5f7fb; --card:#fff; --text:#172033; --muted:#667085; --border:#dfe4ec; --accent:#2563eb; --green:#16a34a; --red:#dc2626; }
+body.dark { --bg:#111827; --card:#1f2937; --text:#f3f4f6; --muted:#aab3c2; --border:#374151; --accent:#60a5fa; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); }
+.container { max-width:850px; margin:0 auto; padding:24px 16px 50px; }
+.top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:24px; }
+h1 { font-size:28px; margin:0; }
+button { font:inherit; }
+#theme { border:1px solid var(--border); background:var(--card); color:var(--text); padding:9px 13px; border-radius:10px; cursor:pointer; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,.05); }
+.meta { color:var(--muted); margin-bottom:12px; }
+.question { font-size:21px; line-height:1.4; margin:10px 0 22px; }
+.option { width:100%; text-align:left; border:1px solid var(--border); background:var(--card); color:var(--text); padding:14px 16px; border-radius:11px; margin:7px 0; cursor:pointer; transition:.15s; }
+.option:hover:not(:disabled) { border-color:var(--accent); }
+.option.correct { background:#dcfce7; border-color:var(--green); color:#166534; }
+.option.wrong { background:#fee2e2; border-color:var(--red); color:#991b1b; }
+body.dark .option.correct { background:#14532d; color:#dcfce7; }
+body.dark .option.wrong { background:#7f1d1d; color:#fee2e2; }
+.option:disabled { cursor:default; }
+.next { margin-top:18px; border:0; background:var(--accent); color:white; padding:12px 18px; border-radius:10px; cursor:pointer; }
+.hidden { display:none; }
+.result { text-align:center; }
+.score { font-size:38px; font-weight:700; margin:16px 0 8px; }
+.small { color:var(--muted); }
+.restart { margin-top:20px; border:0; background:var(--accent); color:white; padding:12px 18px; border-radius:10px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top">
+    <h1>3 Tema – Organizacijos saugumo politikos rengimas</h1>
+    <button id="theme">🌙 Tamsus režimas</button>
+  </div>
+  <div id="quiz" class="card"></div>
+  <div id="result" class="card result hidden"></div>
+</div>
+<script>
+const bank = [{"q": "Į ką orientuotas ISO/IEC 27001?", "options": ["Tik Kalifornijos gyventojų privatumą", "Tik IT paslaugų valdymą", "Tik mokėjimo kortelių duomenis", "Informacijos saugumo valdymo sistemos kūrimą, diegimą, priežiūrą ir tobulinimą"], "correct": 3}, {"q": "Koks yra idealus ryšys tarp atitikties ir saugumo politikos?", "options": ["Atitiktis skirta tik finansinei apskaitai", "Atitiktis nėra susijusi su saugumu", "Atitiktis turėtų pakeisti saugumo politiką", "Atitiktis turėtų būti geros saugumo politikos taikymo požymis"], "correct": 3}, {"q": "Kuo ISO/IEC 27002 papildo ISO/IEC 27001?", "options": ["Pateikia išsamesnį saugos kontrolės ir priemonių įgyvendinimo praktikos kodeksą", "Pakeičia visus auditus", "Reglamentuoja tik mokėjimo korteles", "Nustato tik privatumo teises"], "correct": 0}, {"q": "Kam IRT strategijoje naudojami KPI?", "options": ["Strategijos pažangai ir sėkmei stebėti", "Darbuotojų prieigos slaptažodžiams kurti", "Duomenims šifruoti", "Incidentams automatiškai ištrinti"], "correct": 0}, {"q": "Kokia priemonė susijusi su organizacijos partneriais?", "options": ["Tik darbuotojų atranka", "Tik slaptažodžių keitimas", "Tik serverių perkrovimas", "Partnerių analizė ir tikrinimas"], "correct": 3}, {"q": "Kas yra BDAR?", "options": ["IT paslaugų valdymo praktika", "Mokėjimo kortelių saugos standartas", "Europos Sąjungos reglamentas, reglamentuojantis asmens duomenų apsaugą ir privatumą", "JAV IT paslaugų standartas"], "correct": 2}, {"q": "Kaip ITIL susijęs su saugumu?", "options": ["ITIL skirtas tik fizinei apsaugai", "IT paslaugų valdymo gairės netiesiogiai daro įtaką saugumui", "ITIL visiškai pakeičia ISO/IEC 27001", "ITIL reglamentuoja tik sveikatos duomenis"], "correct": 1}, {"q": "Kodėl viešosios debesijos paslaugos gali būti patrauklios griežtų fizinės infrastruktūros reikalavimų atveju?", "options": ["Nes jos panaikina visus kibernetinius incidentus", "Nes jose nereikia jokių saugumo priemonių", "Tiekėjas gali turėti griežtai valdomą ir apsaugotą duomenų centro infrastruktūrą", "Nes jos automatiškai suteikia visus sertifikatus"], "correct": 2}, {"q": "Ką apibrėžia priimtino naudojimo politika (AUP)?", "options": ["Priimtiną ir nepriimtiną IT išteklių naudojimo elgesį", "Tik duomenų šifravimo algoritmus", "Tik fizinio perimetro apsaugą", "Tik darbuotojų atranką"], "correct": 0}, {"q": "Ką vertina SOC 2?", "options": ["Debesijos ir paslaugų teikėjų saugumą, pasiekiamumą, apdorojimo vientisumą, konfidencialumą ir privatumą", "Tik fizinį biuro perimetrą", "Tik darbuotojų mokymus", "Tik mokėjimo kortelių duomenis"], "correct": 0}, {"q": "Ką aprašo privatumo politika?", "options": ["Kaip asmens informacija renkama, apdorojama ir saugoma", "Kaip valdomas IT biudžetas", "Kaip atliekamas DRP testas", "Kaip stebimos serverių patalpos"], "correct": 0}, {"q": "Kas yra IRT strategijos atskaitos taškas?", "options": ["Tik darbuotojų skaičius", "Organizacijos verslo tikslai, misija ir uždaviniai", "Tik naudojamos antivirusinės programos", "Tik IT įrangos kaina"], "correct": 1}, {"q": "Kam daugiausia skirtas atkūrimo po nelaimių planas (DRP)?", "options": ["Fizinio perimetro stebėjimui", "IT sistemų ir duomenų atkūrimui po nelaimės ar didelio sutrikimo", "Darbuotojų mokymams", "Tiekėjų vertinimui"], "correct": 1}, {"q": "Kokia yra NIST kibernetinio saugumo sistemos paskirtis?", "options": ["Reguliuoti ES asmens duomenų apsaugą", "Sukurti mokėjimo kortelių standartą", "Sukurti IT paslaugų katalogą", "Pateikti gaires ir gerąją praktiką kibernetinio saugumo rizikai valdyti ir mažinti"], "correct": 3}, {"q": "Kodėl organizacijai reikalingos aiškios saugumo gairės?", "options": ["Kad būtų galima išvengti visų auditų", "Kad būtų aišku, ką saugoti, ką verta saugoti ir kaip tai daryti", "Kad būtų galima atsisakyti visų saugumo priemonių", "Kad būtų galima panaikinti IT skyrių"], "correct": 1}, {"q": "Ką saugumo srityje apima ISO/IEC 27001?", "options": ["Konfidencialumo, vientisumo ir prieinamumo apsaugą", "Tik fizinio perimetro apsaugą", "Tik darbuotojų atranką", "Tik mokėjimų apdorojimą"], "correct": 0}, {"q": "Kokia pagrindinė saugumo standartų funkcija?", "options": ["Jie suteikia gaires organizacijos saugumui valdyti", "Jie pakeičia visas organizacijos procedūras", "Jie garantuoja absoliutų saugumą", "Jie skirti tik fizinei apsaugai"], "correct": 0}, {"q": "Ką nustato prieigos kontrolės politika?", "options": ["Kada atliekamas finansinis auditas", "Kas gali prieiti prie kokių išteklių ir pagal kokius principus", "Kaip atkuriami duomenys po nelaimės", "Kaip sudaromas IT biudžetas"], "correct": 1}, {"q": "Ką gali apibrėžti fizinės saugos politika?", "options": ["Perimetro apsaugą, vaizdo kamerų stebėjimą ir riboto patekimo zonas", "Tik debesijos paslaugų kainas", "Tik programinės įrangos licencijas", "Tik darbuotojų mokymų temas"], "correct": 0}, {"q": "Ką apima organizacijos informacijos saugumo valdymo dokumentų visuma?", "options": ["Tik darbuotojų darbo grafiką", "Tik IT įrangos sąrašą", "Tik vieną slaptažodžių dokumentą", "Politikas, planus ir procedūras, skirtas saugumui bei rizikoms valdyti"], "correct": 3}, {"q": "Kas yra informacijos saugumo politika (ISP)?", "options": ["Tik techninių įrenginių sąrašas", "Tik darbuotojų mokymų tvarkaraštis", "Aukšto lygio dokumentas, nusakantis organizacijos įsipareigojimą užtikrinti informacijos saugumą", "Tik incidentų žurnalas"], "correct": 2}, {"q": "Kas turi būti nustatyta IRT strategijos biudžete ir išteklių plane?", "options": ["Tik fizinės apsaugos priemonės", "Tik slaptažodžių taisyklės", "Finansiniai ištekliai ir personalo poreikiai", "Tik duomenų klasifikavimo lygiai"], "correct": 2}, {"q": "Ką apibrėžia veiklos tęstinumo planas (BCP)?", "options": ["Tik kaip valdyti slaptažodžius", "Kaip organizacija tęs svarbias operacijas ir paslaugas per ir po sutrikimų", "Tik kaip atkurti vieną serverį", "Tik kaip atlikti auditą"], "correct": 1}, {"q": "Kas dažniausiai sertifikuojama?", "options": ["Konkreti informacinė sistema", "Tik organizacijos pastatas", "Tik vienas darbuotojas", "Visa pasaulio debesijos infrastruktūra"], "correct": 0}, {"q": "Ką reiškia nuolatinis IRT strategijos tobulinimas?", "options": ["Visų senų sistemų atsisakymą", "Strategijos peržiūrą ir atnaujinimą pagal kintančius poreikius ir technologijų tendencijas", "Tik metinį slaptažodžių pakeitimą", "Strategijos palikimą nepakeistą"], "correct": 1}, {"q": "Kam skirta COBIT sistema?", "options": ["Sveikatos informacijai reguliuoti", "Mokėjimo kortelių duomenims apsaugoti", "Tik fizinei saugai valdyti", "IT valdymo ir kontrolės praktiką suderinti su verslo tikslais"], "correct": 3}, {"q": "Kokia priemonė susijusi su darbuotojų pasirengimu?", "options": ["Tik fizinis perimetras", "Tik sertifikato pirkimas", "Tik duomenų centrų nuoma", "Saugumo mokymai"], "correct": 3}, {"q": "Ką apibūdina rizikos valdymo politika?", "options": ["Tik fizinių patalpų naudojimą", "Tik duomenų archyvavimo tvarką", "Rizikos identifikavimo, įvertinimo ir valdymo principus", "Tik darbuotojų elgesio taisykles"], "correct": 2}, {"q": "Kuo saugumo sertifikatai gali būti naudingi organizacijai?", "options": ["Jie gali būti konkurencinis pranašumas", "Jie garantuoja nulį incidentų", "Jie pakeičia visas saugumo politikas", "Jie panaikina visus teisinius reikalavimus"], "correct": 0}, {"q": "Ką reikia daryti norint išlaikyti sertifikacijos statusą pasibaigus sertifikato galiojimui?", "options": ["Tik atnaujinti antivirusinę", "Nieko daryti nereikia", "Vėl atlikti pilną arba, priklausomai nuo sertifikato, dalinį auditą", "Tik pakeisti slaptažodžius"], "correct": 2}, {"q": "Kokios techninės ir organizacinės priemonės minimos BDAR kontekste?", "options": ["Tik reklama ir rinkodara", "Fizinė sauga, šifravimas, prieigos teisių valdymas, rizikos vertinimai ir auditai", "Tik darbuotojų atlyginimų apskaita", "Tik IT įrangos pirkimas"], "correct": 1}, {"q": "Kokia priemonė minima kaip duomenų apsaugos būdas?", "options": ["Tik failų spausdinimas", "Šifravimas ir (pseudo)anonimizacija", "Tik slaptažodžių dalijimasis", "Tik viešas duomenų skelbimas"], "correct": 1}, {"q": "Kodėl svarbi informacijos saugumo mokymų programa?", "options": ["Ji panaikina poreikį turėti saugumo politiką", "Ji pakeičia visas technines saugumo priemones", "Ji ugdo darbuotojus apie saugumo praktiką, politiką ir procedūras", "Ji skirta tik auditoriams"], "correct": 2}, {"q": "Kuo saugumo auditavimas skiriasi nuo vien sertifikato turėjimo?", "options": ["Sertifikatas niekada nesibaigia", "Auditas nereikalingas sertifikacijai", "Sertifikavimui reikia audito ir teigiamo įvertinimo, o sertifikatas galioja ribotą laiką", "Auditas atliekamas tik po incidento"], "correct": 2}, {"q": "Ką svarbu įtraukti kuriant IRT strategiją?", "options": ["Tik finansų skyrių", "Verslo lyderius, skyrių vadovus ir IT komandas", "Tik išorinius auditorius", "Tik tiekėjus"], "correct": 1}, {"q": "Ką reiškia informacijos saugumo standartų atitiktis?", "options": ["Tik fizinės apsaugos užtikrinimą", "Gebėjimą formaliai išpildyti standarte numatytus reikalavimus", "Tik darbuotojų mokymų organizavimą", "Galimybę visiškai pašalinti visas grėsmes"], "correct": 1}, {"q": "Kam skirta duomenų klasifikavimo politika?", "options": ["Tiekėjų kainoms palyginti", "Serverių fizinei apsaugai", "Darbuotojų atlyginimams nustatyti", "Duomenims suskirstyti pagal jų jautrumą ir svarbą"], "correct": 3}, {"q": "Kas yra ITIL?", "options": ["Mokėjimo kortelių standartas", "Asmens duomenų apsaugos reglamentas", "Informacijos saugumo sertifikatas", "IT paslaugų valdymo praktikos rinkinys"], "correct": 3}, {"q": "Kokie teisės aktai papildomai paminėti šalia BDAR ir CCPA?", "options": ["COBIT ir ITIL", "ISO 27001 ir ISO 27002", "PCI DSS ir SOC 2", "DORA ir NIS2"], "correct": 3}, {"q": "Kam skirtas PCI DSS?", "options": ["Organizacijoms, tvarkančioms mokėjimus kredito kortelėmis", "Tik sveikatos priežiūros įstaigoms", "Tik ES institucijoms", "Tik debesijos tiekėjams"], "correct": 0}, {"q": "Ar perkėlus informacinę sistemą pas sertifikuotą debesijos tiekėją sistema automatiškai gauna jo sertifikaciją?", "options": ["Tik jei naudojamas viešasis debesis", "Ne", "Taip, visada", "Tik jei sistema turi antivirusinę"], "correct": 1}, {"q": "Ką suteikia CCPA?", "options": ["IT sistemų atkūrimo procedūras", "Kalifornijos gyventojams tam tikras teises į jų asmeninę informaciją", "ES gyventojams teises pagal BDAR", "Mokėjimo kortelių apsaugos kontrolę"], "correct": 1}, {"q": "Kas yra CIS kritinės saugos kontrolės priemonės?", "options": ["IT paslaugų valdymo metodika", "Prioritetinių veiksmų rinkinys kibernetinio saugumo apsaugai stiprinti", "Asmens duomenų reglamentas", "Finansinio audito taisyklės"], "correct": 1}, {"q": "Kam aktualus BDAR?", "options": ["Organizacijoms, tvarkančioms ES gyventojų asmens duomenis", "Tik organizacijoms Kalifornijoje", "Tik mokėjimo kortelių operatoriams", "Tik debesijos tiekėjams"], "correct": 0}, {"q": "Kiek laiko įprastai galioja saugumo sertifikatas?", "options": ["Visą laiką be pakartotinio audito", "Ribotą laiką, dažnai 1 arba 2 metus", "Tik vieną mėnesį", "Tik vieną savaitę"], "correct": 1}, {"q": "Kaip organizacija gali gauti atitiktį patvirtinantį sertifikatą?", "options": ["Tik paskelbusi saugumo politiką", "Vien tik pati pasirašiusi deklaraciją", "Tik įsigijusi antivirusinę programą", "Praėjusi akredituoto nepriklausomo auditoriaus auditą ir gavusi teigiamą įvertinimą"], "correct": 3}, {"q": "Ką apibrėžia reagavimo į incidentus planas (IRP)?", "options": ["Kaip sudaryti metinį biudžetą", "Kaip klasifikuoti darbuotojus", "Kaip pasirinkti debesijos tiekėją", "Kaip organizacija reaguos ir valdys saugumo incidentus"], "correct": 3}, {"q": "Ką turėtų apibrėžti IRT strategijos tikslai?", "options": ["Tik darbuotojų atostogų grafiką", "Tik audito datą", "Tik serverių vietą", "Konkrečius tikslus ir uždavinius, kurių siekiama strategija"], "correct": 3}, {"q": "Ar organizacijos gali turėti vidinius IT saugos auditorius?", "options": ["Ne", "Taip", "Tik debesijos tiekėjai", "Tik valstybinės institucijos"], "correct": 1}, {"q": "Kokias tris pagrindines savybes turi užtikrinti Adform pavyzdyje minimos priemonės?", "options": ["Tik greitį, kainą ir patogumą", "Konfidencialumą, integralumą ir prieinamumą", "Tik privatumą, reklamą ir pelną", "Tik fizinę, finansinę ir teisinę apsaugą"], "correct": 1}, {"q": "Ką nustato HIPAA?", "options": ["ES gyventojų privatumo teises", "Neskelbtinos sveikatos priežiūros informacijos apsaugos standartus", "IT paslaugų valdymo gaires", "Mokėjimo kortelių duomenų apsaugos reikalavimus"], "correct": 1}, {"q": "Kam skirta trečiųjų šalių saugumo vertinimo politika?", "options": ["Kibernetinėms atakoms vykdyti", "Duomenų bazėms projektuoti", "Tiekėjų ir paslaugų teikėjų saugos praktikai įvertinti", "Darbuotojų slaptažodžiams kurti"], "correct": 2}, {"q": "Kas yra technologijų planas?", "options": ["Iniciatyvų ir projektų, reikalingų strategijos tikslams pasiekti, seka", "Incidentų registras", "Darbuotojų mokymų sąrašas", "Saugumo audito ataskaita"], "correct": 0}];
+let quiz = [], current = 0, score = 0, answered = false;
+
+function pick10() {
+  quiz = [...bank].sort(() => Math.random() - 0.5).slice(0, 10);
+  current = 0; score = 0; showQuestion();
+}
+function showQuestion() {
+  answered = false;
+  const item = quiz[current];
+  const box = document.getElementById('quiz');
+  box.innerHTML = `
+    <div class="meta">Klausimas ${current+1} iš ${quiz.length}</div>
+    <div class="question">${escapeHtml(item.q)}</div>
+    <div id="options"></div>
+    <button id="next" class="next hidden">Kitas klausimas →</button>`;
+  const opts = document.getElementById('options');
+  item.options.forEach((text, i) => {
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.textContent = text;
+    b.onclick = () => answer(i);
+    opts.appendChild(b);
+  });
+}
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const item = quiz[current];
+  const buttons = [...document.querySelectorAll('.option')];
+  buttons.forEach(b => b.disabled = true);
+  if (i === item.correct) {
+    buttons[i].classList.add('correct');
+    score++;
+  } else {
+    buttons[i].classList.add('wrong');
+    buttons[item.correct].classList.add('correct');
+  }
+  document.getElementById('next').classList.remove('hidden');
+}
+document.addEventListener('click', e => {
+  if (e.target.id === 'next') {
+    current++;
+    if (current < quiz.length) showQuestion();
+    else showResult();
+  }
+});
+function showResult() {
+  document.getElementById('quiz').classList.add('hidden');
+  const r = document.getElementById('result');
+  r.classList.remove('hidden');
+  const pct = Math.round(score / quiz.length * 100);
+  r.innerHTML = `<div class="small">3 Tema baigta</div>
+    <div class="score">${score}/10</div>
+    <div>${pct}%</div>
+    <button class="restart" onclick="pick10(); document.getElementById('result').classList.add('hidden'); document.getElementById('quiz').classList.remove('hidden');">Bandyti dar kartą</button>`;
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+const theme = document.getElementById('theme');
+if (localStorage.getItem('darkMode') === '1') document.body.classList.add('dark');
+function updateThemeText() { theme.textContent = document.body.classList.contains('dark') ? '☀️ Šviesus režimas' : '🌙 Tamsus režimas'; }
+theme.onclick = () => { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark') ? '1':'0'); updateThemeText(); };
+updateThemeText();
+pick10();
+</script>
+</body>
+</html>
