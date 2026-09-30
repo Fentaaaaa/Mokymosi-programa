@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Topic 38 — LAN and WAN Topologies, DNS, DHCP</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#dfe4ec;--accent:#2563eb;--green:#16a34a;--greenbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2}
+body.dark{--bg:#101318;--card:#191d24;--text:#f3f4f6;--muted:#a7afbd;--border:#303642;--accent:#60a5fa;--green:#4ade80;--greenbg:#153b24;--red:#f87171;--redbg:#431b1b}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);transition:.2s}
+.container{max-width:760px;margin:auto;padding:24px 16px 40px} .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px}
+h1{font-size:28px;margin:0 0 5px} .subtitle{color:var(--muted);font-size:14px}
+button{font:inherit;cursor:pointer} .theme{background:var(--card);color:var(--text);border:1px solid var(--border);padding:9px 13px;border-radius:10px}
+.progress{color:var(--muted);font-size:14px;margin-bottom:10px} .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.question{font-size:21px;line-height:1.4;margin:0 0 20px;font-weight:700} .answers{display:grid;gap:11px}
+.answer{width:100%;text-align:left;padding:14px 15px;border:1px solid var(--border);border-radius:11px;background:transparent;color:var(--text)}
+.answer:hover:not(:disabled){border-color:var(--accent);background:rgba(37,99,235,.06)} .answer.correct{background:var(--greenbg);border-color:var(--green)} .answer.wrong{background:var(--redbg);border-color:var(--red)} .answer:disabled{cursor:default}
+.next{margin-top:18px;width:100%;padding:13px 16px;border-radius:11px;background:var(--accent);color:#fff;border:0;font-weight:700} .next:disabled{opacity:.45;cursor:not-allowed}
+.result{text-align:center} .score{font-size:44px;font-weight:800;margin:15px 0 5px} .percent{font-size:22px;color:var(--muted)}
+.retry{margin-top:22px;padding:12px 18px;border-radius:10px;background:var(--accent);color:#fff;border:0;font-weight:700}
+@media(max-width:560px){h1{font-size:23px}.card{padding:18px}.question{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="top">
+<div><h1>Topic 38 — LAN and WAN Topologies, DNS, DHCP</h1>
+<div class="subtitle">STP, EtherChannel, DHCP, DNS, traffic balancing and proxy servers</div></div>
+<button class="theme" id="themeBtn" onclick="toggleTheme()">🌙 Dark mode</button>
+</div>
+<div id="quiz"></div>
+</div>
+<script>
+const bank=[{"q": "Ką reiškia LAN?", "a": ["Local Access Node", "Local Area Network", "Large Access Network", "Long Area Network"], "c": 1}, {"q": "Ką reiškia WAN?", "a": ["Wide Access Node", "Wide Area Network", "Wireless Access Network", "Web Area Network"], "c": 1}, {"q": "Kam dažniausiai priskiriamas vidinis namų ar įmonės tinklas?", "a": ["WAN", "DNS", "LAN", "DHCP"], "c": 2}, {"q": "Kam priskiriami internete maršrutizuojami išoriniai tinklai?", "a": ["WAN", "LAN", "STP", "LACP"], "c": 0}, {"q": "Kaip kurso metu traktuojamas visas išorinis internetas?", "a": ["Kaip DHCP segmentas", "Kaip vienas VLAN", "Kaip WAN", "Kaip LAN"], "c": 2}, {"q": "Kokia 38 temos paskaitos trukmė?", "a": ["6 valandos", "8 valandos", "2 valandos", "4 valandos"], "c": 3}, {"q": "Koks paskaitos formatas?", "a": ["Tik praktika", "Tik teorija", "Egzaminas", "Teorija ir praktinis užsiėmimas"], "c": 3}, {"q": "Kuri tema nagrinėjama šioje paskaitoje?", "a": ["OWASP", "SIEM", "Kerberos", "LAN ir WAN topologijos"], "c": 3}, {"q": "Kuris transportinio OSI lygmens protokolų derinys nagrinėjamas?", "a": ["ARP ir ICMP", "SSH ir FTP", "TCP ir UDP", "HTTP ir DNS"], "c": 2}, {"q": "Kuri adresacijos technologija nagrinėjama?", "a": ["SAML", "LDAP", "TLS", "DHCP"], "c": 3}, {"q": "Kuri vardų sistema nagrinėjama?", "a": ["DNS", "LACP", "STP", "DHCP"], "c": 0}, {"q": "Kuri tinklo funkcija nagrinėjama kartu su DNS ir DHCP?", "a": ["Srauto balansavimas", "Failų indeksavimas", "Diskų šifravimas", "MFA"], "c": 0}, {"q": "Kokie proxy tipai nagrinėjami?", "a": ["LAN ir WAN", "DNS ir DHCP", "TCP ir UDP", "Forward ir reverse"], "c": 3}, {"q": "Kodėl alternatyvūs tinklo keliai gali būti naudingi?", "a": ["Jie padidina tinklo patikimumą", "Jie pakeičia DNS", "Jie panaikina IP adresus", "Jie išjungia komutatorius"], "c": 0}, {"q": "Kokia problema gali atsirasti, kai vienu metu aktyvūs keli tinklo keliai?", "a": ["DNS įrašų trūkumas", "TLS klaidos", "DHCP adresų perteklius", "Tinklo kilpos"], "c": 3}, {"q": "Koks protokolas skirtas aktyviems keliams valdyti?", "a": ["STP", "HTTP", "DHCP", "DNS"], "c": 0}, {"q": "Ką leidžia STP?", "a": ["Vienu metu komunikacijai naudoti tik vieną iš kelių egzistuojančių kelių", "Automatiškai pakeisti IP adresus", "Panaikinti visus tinklo kelius", "Visus kelius aktyvuoti vienu metu"], "c": 0}, {"q": "Kur įgyvendinamas STP?", "a": ["DNS serveriuose", "Klientų naršyklėse", "DHCP klientuose", "Tinklo komutatoriuose"], "c": 3}, {"q": "Kokia yra pagrindinė STP paskirtis?", "a": ["Susieti vardus su IP", "Priskirti IP adresus", "Valdyti aktyvius kelius ir išvengti tinklo kilpų", "Balansuoti HTTP užklausas"], "c": 2}, {"q": "Koks protokolas paminėtas kaip STP susijusi technologija VLAN aplinkoje?", "a": ["BGP", "PVST", "NTP", "DNSSEC"], "c": 1}, {"q": "Ką reiškia PVST?", "a": ["Public Virtual Switching Table", "Private VLAN Secure Transport", "Per VLAN Spanning Tree Protocol", "Proxy VLAN Switching Technology"], "c": 2}, {"q": "Kokia technologija minima kaip būdas didinti pralaidumą tarp komutatorių?", "a": ["EtherChannel", "DNS", "DHCP", "STP"], "c": 0}, {"q": "Koks protokolas naudojamas EtherChannel konfigūracijoje?", "a": ["TLS", "DNS", "ARP", "LACP"], "c": 3}, {"q": "Kada EtherChannel gali būti naudojamas?", "a": ["Tik DHCP klientams", "Tik DNS serveriams", "Kai reikia ne tik patikimumo, bet ir didesnio pralaidumo", "Tik kai nėra komutatorių"], "c": 2}, {"q": "Kam skirtas DHCP?", "a": ["Balansuoti HTTP srautą", "Susieti domenus su IP", "Automatiškai priskirti tinklo įrenginiams IP konfigūraciją", "Valdyti tinklo kilpas"], "c": 2}, {"q": "Iš kurios pusės inicijuojamas DHCP?", "a": ["Kliento pusės", "Proxy serverio", "DNS serverio", "Komutatoriaus"], "c": 0}, {"q": "Ko reikia norint tinkle dalinti DHCP konfigūraciją?", "a": ["DNS serverio", "STP root bridge", "Reverse proxy", "DHCP serverio"], "c": 3}, {"q": "Ar DHCP gali pateikti tik IP adresą?", "a": ["Tik MAC adresą", "Tik DNS vardą", "Ne, jis gali automatiškai sukonfigūruoti ir kitus bazinius IP nustatymus", "Taip, tik IP adresą"], "c": 2}, {"q": "Kaip DHCP papildomi nustatymai įvardijami medžiagoje?", "a": ["DHCP options", "Proxy headers", "DNS records", "STP options"], "c": 0}, {"q": "Kas inicijuoja DHCP konfigūracijos gavimą?", "a": ["DNS serveris", "Reverse proxy", "Klientas", "Komutatorius"], "c": 2}, {"q": "Kokią problemą sprendžia DNS?", "a": ["Nepatogumą pasiekti tinklo resursus naudojant tik IP adresus", "Tinklo kilpas", "DHCP adresų trūkumą", "Srauto perkrovą"], "c": 0}, {"q": "Ką susieja DNS?", "a": ["MAC adresus su VLAN", "IP adresus su vardais", "TCP su UDP", "Proxy su STP"], "c": 1}, {"q": "Kodėl vardai patogesni už IP adresus?", "a": ["Vardai naudoja daugiau IP adresų", "Tinklo resursus patogiau pasiekti naudojant vardus", "Vardai pakeičia STP", "Vardai išjungia DHCP"], "c": 1}, {"q": "Ar DNS turi skirtingų tipų įrašus?", "a": ["Tik IPv6 įrašus", "Taip", "Ne", "Tik vieną tipą"], "c": 1}, {"q": "Kam skirti skirtingi DNS įrašų tipai?", "a": ["Tik komutavimui", "Tik DHCP", "Skirtingam funkcionalumui įgyvendinti", "Tik IP adresų šifravimui"], "c": 2}, {"q": "Koks yra pagrindinis srauto balansavimo tikslas?", "a": ["Panaikinti DNS", "Išjungti proxy", "Panaikinti TCP", "Užtikrinti aukštesnį sistemų patikimumą"], "c": 3}, {"q": "Kaip srauto balansavimas paskirsto užklausas?", "a": ["Tik vienam serveriui", "Tik tarp DNS zonų", "Tarp kelių serverių", "Tik tarp klientų"], "c": 2}, {"q": "Kodėl užklausos gali būti paskirstomos keliems mažiau pajėgiems serveriams?", "a": ["Kad būtų išvengta DNS", "Kad būtų panaikinti IP adresai", "Kad būtų paskirstoma apkrova ir užtikrinamas patikimumas", "Kad veiktų tik DHCP"], "c": 2}, {"q": "Ar srauto balansavimas leidžia keisti užklausas aptarnaujančius serverius etapais?", "a": ["Tik per DHCP", "Tik per STP", "Taip", "Ne"], "c": 2}, {"q": "Kuriuose OSI lygiuose tipiniu atveju atliekamas srauto balansavimas?", "a": ["Tik L2", "Tik L3", "L4 arba L7", "L1 arba L2"], "c": 2}, {"q": "Koks protokolas pavyzdžiu siejamas su L4 srauto balansavimu?", "a": ["TCP", "HTTP", "ARP", "DNS"], "c": 0}, {"q": "Koks protokolas pavyzdžiu siejamas su L7 srauto balansavimu?", "a": ["HTTPS", "ARP", "Ethernet", "DHCP"], "c": 0}, {"q": "Kuo L4 srauto balansavimas siejamas medžiagoje?", "a": ["DHCP options", "MAC adresais", "DNS įrašais", "TCP srautu"], "c": 3}, {"q": "Kuo L7 srauto balansavimas siejamas medžiagoje?", "a": ["HTTPS srautu", "Ethernet kadrais", "DHCP užklausomis", "ARP srautu"], "c": 0}, {"q": "Kas yra proxy serveris?", "a": ["DNS įrašas", "Tinklo komutatorius", "DHCP klientas", "Tarpinis serveris, naudojamas pasiekti tinklo resursus"], "c": 3}, {"q": "Kokie du proxy tipai pateikiami medžiagoje?", "a": ["LAN ir WAN", "TCP ir UDP", "STP ir LACP", "Forward ir reverse"], "c": 3}, {"q": "Kam dažnai naudojami įprasti forward proxy serveriai įmonėse?", "a": ["Prieigos prie interneto valdymui", "STP keliams valdyti", "IP adresams dalinti", "DNS įrašams kurti"], "c": 0}, {"q": "Kam dar gali būti naudojami forward proxy serveriai?", "a": ["EtherChannel kūrimui", "Tapatybės anonimizavimui", "VLAN kilpoms šalinti", "DHCP rezervacijoms"], "c": 1}, {"q": "Kam naudojami reverse proxy serveriai?", "a": ["Tik DHCP", "Srauto balansavimui", "Tik MAC adresų keitimui", "Tik STP"], "c": 1}, {"q": "Kokią kitą funkciją gali atlikti reverse proxy?", "a": ["MAC spoofing", "TLS terminavimą", "DHCP lease kūrimą", "STP root parinkimą"], "c": 1}, {"q": "Kaip reverse proxy gali nukreipti skirtingus domenus?", "a": ["Tik į vieną LAN segmentą", "Tik į skirtingus DHCP serverius", "Į vieną išorinį IP adresą", "Tik į skirtingus MAC adresus"], "c": 2}, {"q": "Kuo skiriasi forward ir reverse proxy pagal paskirtį?", "a": ["Forward proxy veikia klientų prieigos pusėje, reverse proxy – serverių/srauto pusėje", "Forward proxy skirtas tik DNS, reverse – tik DHCP", "Forward proxy skirtas tik STP", "Jie yra visiškai vienodi"], "c": 0}, {"q": "Kuri technologija užtikrina, kad alternatyvūs keliai nesukeltų nuolatinių kilpų?", "a": ["HTTPS", "DNS", "STP", "DHCP"], "c": 2}, {"q": "Kokia STP nauda, kai yra keli fiziniai keliai?", "a": ["Visi keliai visada naudojami", "IP adresai tampa dinaminiai", "DNS tampa nereikalingas", "Valdomas aktyvus kelias ir išvengiama kilpų"], "c": 3}, {"q": "Kokia technologija skirta didesniam pralaidumui sujungiant kelis ryšius?", "a": ["STP", "DHCP", "DNS", "EtherChannel"], "c": 3}, {"q": "Kuris protokolas naudojamas EtherChannel pavadinime pateiktame pavyzdyje?", "a": ["TCP", "UDP", "DNS", "LACP"], "c": 3}, {"q": "Kuri technologija automatiškai priskiria IP konfigūraciją įrenginiui?", "a": ["STP", "Proxy", "DNS", "DHCP"], "c": 3}, {"q": "Kuri technologija susieja IP adresus su vardais?", "a": ["LACP", "DHCP", "STP", "DNS"], "c": 3}, {"q": "Kuri technologija padalina srautą tarp kelių serverių?", "a": ["DNS", "DHCP", "Srauto balansavimas", "STP"], "c": 2}, {"q": "Kuri technologija veikia kaip tarpinis serveris?", "a": ["LACP", "DNS", "DHCP", "Proxy"], "c": 3}, {"q": "Kuri proxy rūšis naudojama prieigai prie interneto valdyti?", "a": ["Reverse proxy", "STP proxy", "DNS proxy", "Forward proxy"], "c": 3}, {"q": "Kuri proxy rūšis naudojama srauto balansavimui?", "a": ["Forward proxy", "DNS proxy", "DHCP proxy", "Reverse proxy"], "c": 3}, {"q": "Kuri praktinė veikla minima šioje temoje?", "a": ["WordPress diegimas", "OSI ir bazinių tinklo komandų praktiniai užsiėmimai", "Kerberos laboratorija", "CIS Windows grūdinimas"], "c": 1}, {"q": "Kokia platforma minima praktiniuose tinklo užsiėmimuose?", "a": ["TryHackMe", "WordPress", "GitHub", "Azure DevOps"], "c": 0}, {"q": "Kuri TryHackMe tema minima?", "a": ["Linux Privilege Escalation", "Intro to Networking", "Web Fundamentals", "OWASP Top 10"], "c": 1}, {"q": "Kuri kita TryHackMe tema minima?", "a": ["SIEM Deployment", "Kerberos Attacks", "DNSSEC Advanced", "What is Networking"], "c": 3}, {"q": "Kuri LAN skirta TryHackMe tema minima?", "a": ["Enterprise VLAN", "LAN Security Advanced", "Intro to LAN", "LAN Proxy"], "c": 2}, {"q": "Kuri DNS skirta TryHackMe tema minima?", "a": ["DNSSEC in Detail", "DNS in Detail", "DNS Proxy Lab", "Advanced DNS"], "c": 1}, {"q": "Kokia pagrindinė STP problema sprendžiama tinkle?", "a": ["IP adresų priskyrimas", "Kilpų prevencija", "HTTPS terminavimas", "DNS vardų sprendimas"], "c": 1}, {"q": "Kokia pagrindinė DHCP paskirtis?", "a": ["DNS vardų kūrimas", "Automatinė tinklo įrenginių IP konfigūracija", "Srauto balansavimas", "Proxy veikimas"], "c": 1}, {"q": "Kokia pagrindinė DNS paskirtis?", "a": ["Susieti vardus su IP adresais", "Valdyti STP", "Balansuoti TCP", "Priskirti IP klientams"], "c": 0}, {"q": "Kokia pagrindinė srauto balansavimo paskirtis?", "a": ["Padalinti srautą tarp kelių serverių ir didinti patikimumą", "Kurti DNS įrašus", "Valdyti MAC lenteles", "Priskirti IP"], "c": 0}, {"q": "Kokia pagrindinė reverse proxy paskirtis iš pateiktų?", "a": ["Tik STP", "Tik DHCP", "Tik interneto anonimizavimas", "Srauto balansavimas, TLS terminavimas ir domenų nukreipimas"], "c": 3}];
+let quiz=[],index=0,score=0,answered=false;
+function toggleTheme(){
+ document.body.classList.toggle('dark');
+ const d=document.body.classList.contains('dark');
+ localStorage.setItem('darkMode',d?'1':'0');
+ document.getElementById('themeBtn').textContent=d?'☀️ Light mode':'🌙 Dark mode';
+}
+if(localStorage.getItem('darkMode')==='1'){
+ document.body.classList.add('dark');
+ document.getElementById('themeBtn').textContent='☀️ Light mode';
+}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function start(){
+ quiz=[...bank].sort(()=>Math.random()-.5).slice(0,10);
+ index=0; score=0; answered=false; render();
+}
+function render(){
+ const x=quiz[index];
+ document.getElementById('quiz').innerHTML=
+ `<div class="progress">Question ${index+1} of ${quiz.length}</div>
+ <div class="card"><div class="question">${esc(x.q)}</div>
+ <div class="answers">${x.a.map((a,i)=>`<button class="answer" onclick="answer(${i})">${esc(a)}</button>`).join('')}</div>
+ <button class="next" id="next" onclick="next()" disabled>${index===quiz.length-1?'Finish →':'Next question →'}</button></div>`;
+}
+function answer(c){
+ if(answered)return;
+ answered=true;
+ const x=quiz[index], bs=[...document.querySelectorAll('.answer')];
+ bs.forEach((b,i)=>{b.disabled=true;if(i===x.c)b.classList.add('correct');});
+ if(c===x.c)score++; else bs[c].classList.add('wrong');
+ document.getElementById('next').disabled=false;
+}
+function next(){
+ if(!answered)return;
+ if(index===quiz.length-1){result();return;}
+ index++; answered=false; render();
+}
+function result(){
+ document.getElementById('quiz').innerHTML=
+ `<div class="card result"><div class="progress">Quiz completed</div>
+ <h2>Your result</h2><div class="score">${score} / 10</div>
+ <div class="percent">${score*10}%</div>
+ <button class="retry" onclick="start()">Try again</button></div>`;
+}
+start();
+</script>
+</body>
+</html>
